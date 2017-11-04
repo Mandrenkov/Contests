@@ -5,7 +5,7 @@
 ---
 
 #### About
-<p> _Solutions_ is a collection of solutions to competitive programming contests.</p>
+_Solutions_ is a collection of solutions to competitive programming contests.
 
 ---
 
