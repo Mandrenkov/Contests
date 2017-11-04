@@ -14,4 +14,4 @@ _Solutions_ is a collection of solutions to competitive programming contests.
 
 | **Directory**                    |  **Description**                            |
 | :--------:                       | :--------:                                  |
-| [2017_icpc_ecna/](2017_icpc_ecna) | ICPC ECNA 2017 - https://ecna17.kattis.com/ |
+| [icpc_ecna_2017/](icpc_ecna_2017/) | ICPC ECNA 2017 - https://ecna17.kattis.com/ |
