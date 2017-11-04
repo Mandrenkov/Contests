@@ -1,3 +1,8 @@
+// Author: Mikhail Andrenkov
+// Date: November 4, 2017
+// Problem: ICPC ECNA 2017 [F]
+//____________________________________________________________
+
 #include <cassert>
 #include <iostream>
 #include <map>
