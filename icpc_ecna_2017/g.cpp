@@ -62,7 +62,9 @@ int N;
 // The original calorie capacity.
 int M;
 
+
 // Functions
+
 // Returns the most calories that can be consumed from the course index |i| onwards
 // given that |skipped| meals were previously skipped at a capacity of |cap|.
 long long solve(long long i, long long skipped, long long cap) {
