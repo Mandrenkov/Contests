@@ -1,8 +1,6 @@
 // Author: Mikhail Andrenkov
-// Date: November 5, 2017
+// Date: November 19, 2017
 // Problem: ICPC ECNA 2017 [A]
-//
-// This solution does not consider ternary Polygon intersections.
 //____________________________________________________________
 
 #include <cassert>
@@ -23,7 +21,7 @@ using namespace std;
 
 // Constants
 constexpr bool DEBUG = false;
-constexpr double EPSILON = 1E-12;
+constexpr double EPSILON = 1E-10;
 constexpr long long MOD = 1000000007;
 constexpr int MAX_INT = 2147483647;
 constexpr long long MAX_LONG = 9223372036854775807;
@@ -47,79 +45,96 @@ ostream& operator<<(ostream& out, const vector<T>& v) {
     return out << ']';
 }
 
+inline bool equals(double a, double b) {
+    return abs(a - b) < EPSILON;
+}
 
 // Solution
 //____________________________________________________________
 
-bool equals(double d1, double d2) {
-    return abs(d1 - d2) < EPSILON;
-}
-
 // Classes
+
+// Point represents a geometric point on the Cartesian plane.
 struct Point {
+    // The x-coordinate of the Point.
     double x = 0;
+    // The y-coordinate of the Point.
     double y = 0;
 
-    Point() {}
+    // Constructor that creates an empty Point.
+    Point() : x(-1), y(-1) {}
 
+    // Constructor that initializes the coordinates of this Point.
     Point(double x, double y) : x(x), y(y) {}
 
+    // Returns the Point located at the midpoint between this Point and the given Point.
     Point average(const Point& p) const {
         return Point{(x + p.x)/2.0, (y + p.y)/2.0};
     }
 
+    // Returns the cross product between this Point and the given Point (interpreted as geometric vectors).
     double operator*(const Point& p) const {
         return x*p.y - p.x*y;
     }
 
+    // Returns true if this Point lies to the left of the given Point.
+    // If the two Points share the same x-coordinate, the lower Point is preferred. 
     bool operator<(const Point& point) const {
         return x < point.x || (x == point.x && y < point.y);
     }
 
-    bool operator>(const Point& point) const {
-        return point < *this && *this != point;
-    }
-
-    bool operator>=(const Point& point) const {
-        return *this == point || *this > point;
-    }
-
+    // Returns true if this Point and the given Point represent the same geometric location.
     bool operator==(const Point& p) const {
         return equals(x, p.x) && equals(y, p.y);
     }
 
+    // Returns true if this Point and the given Point represent different geometric locations.
     bool operator!=(const Point& point) const {
         return !equals(x, point.x) || !equals(y, point.y);
     }
 
+    // Returns the given stream with a representation of the given Point.
     friend ostream& operator<<(ostream& out, const Point& p) {
         out << "(" << p.x << ", " << p.y << ")";
     }
 };
 
-namespace std {
-    template <>
-    struct hash<Point> {
-        float operator()(const Point& p) const {
-            return p.x*10000 + p.y;
-        }
-    };
-}
+// An invalid Point object.
+Point nullpoint;
 
+// Line represents a geometric line segment.
 struct Line {
+    // The starting Point of this Line.
     Point start;
+    // The ending Point of this Line.
     Point end;
 
+    // Determines whether this Line is a vertical line.
     bool vertical;
 
+    // The slope of this line.
     double m = -1;
+    // The y-intercept of this Line.
     double b = -1;
 
+    // The minimum x-coordinate of this Line.
     double min_x = -1;
+    // The minimum y-coordinate of this Line.
     double min_y = -1;
+    // The maximum x-coordinate of this Line.
     double max_x = -1;
+    // The maximum y-coordinate of this Line.
     double max_y = -1;
 
+    // The ID of the Polygon this Line belongs to.
+    int polygonID = -1;
+    // The ID that identifies this Line within the associated Polygon's border.
+    int lineID = -1;
+
+    // Constructor that creates an undefined Line.
+    Line() {}
+
+    // Constructor that creates a Line with the given start and end Points.
     Line(Point& start, Point& end) : start(start), end(end) {
         Point p1 = start;
         Point p2 = end;
@@ -145,20 +160,55 @@ struct Line {
         max_y = max(y1, y2);
     }
 
-    bool collinear(Line& line) {
-        if (vertical) {
-            return line.vertical && equals(min_x, line.min_x);
-        } else {
-            return equals(m, line.m) && equals(b, line.b);
-        }
+    // Constructor that creates a Line with the given start and end Points,
+    // as well as the provided Polygon and Line IDs.
+    Line(Point& start, Point& end, int polygonID, int lineID) : Line(start, end) {
+        this->polygonID = polygonID;
+        this->lineID = lineID;
     }
 
-    Point intersection(Line& line) {
+    // Returns true if the given Point lies along this Line.
+    bool has(Point& p) const {
+        // Check if the Point is the start or end of this Line.
+        if (p == start || p == end) {
+            return true;
+        // Check if the point lies along this vertical Line.
+        } else if (vertical) {
+            if (min_x == p.x && min_y <= p.y && p.y <= max_y) {
+                return true;
+            }
+        // Check if the Point lies along this non-vertical Line.
+        } else if (min_x <= p.x && p.x <= max_x) {
+            double y = m*p.x + b;
+            if (equals(y, p.y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Return true if this Line is parallel to the given Line.
+    inline bool parallel(const Line& line) const {
+        return vertical == line.vertical && equals(m, line.m);
+    }
+
+    // Returns true if the given Point is an endpoint of this Line.
+    inline bool vertex(const Point& p) const {
+        return p == start || p == end;
+    }
+
+    // Returns the intersection Point between this Line and the given Line.
+    // If the lines do not meaningfully intersect, |nullpoint| is returned.
+    Point operator*(const Line& line) const {
+        if (parallel(line)) {
+            return nullpoint;
+        }
+
         if (vertical) {
-            // |   /
-            // |  /
-            // | /
             if (!line.vertical) {
+                // |  /
+                // | /
+                // |/
                 double x = min_x;
                 if (line.min_x <= x && x <= line.max_x) {
                     double y = line.m*x + line.b;
@@ -169,10 +219,10 @@ struct Line {
                 }
             }
         } else {
-            //   / |
-            //  /  |
-            // /   |
             if (line.vertical) {
+                //   /|
+                //  / |
+                // /  |                
                 double x = line.min_x;
                 if (min_x <= x && x <= max_x) {
                     double y = m*x + b;
@@ -182,140 +232,102 @@ struct Line {
                     }                
                 }
             } else {
-                bool parallel = abs(m - line.m) < EPSILON;
-                //   / /
-                //  / /
-                // / /
-                if (!parallel) {
-                    double x = (line.b - b)/(m - line.m);
-                    double y = m*x + b;
-                    if (min_x <= x && x <= max_x &&
-                        line.min_x <= x && x <= line.max_x) {
-                        return Point{x, y};
-                    }
+                //  \  /
+                //   \/
+                //   /
+                double x = (line.b - b)/(m - line.m);
+                double y = m*x + b;
+                if (min_x <= x && x <= max_x &&
+                    line.min_x <= x && x <= line.max_x) {
+                    return Point{x, y};
                 }
             }
         }
-        return Point{-1, -1};
+        return nullpoint;
     }
 
+    // Returns the evaluation of this Line at the given x-coordinate.
+    double operator[](const double x) const {
+        return m*x + b;
+    }
+
+    // Returns true if this Line represents the same geometric line as the given Line.
+    bool operator==(const Line& line) const {
+        return start == line.start && end == line.end;
+    }
+
+    // Returns the given stream with a representation of the given Line.
     friend ostream& operator<<(ostream& out, const Line& line) {
-        out << "[" << line.start << " --> " << line.end << "]";
+        Point p1 = line.start < line.end ? line.start : line.end;
+        Point p2 = line.end < line.start ? line.start : line.end;
+
+        out << "[" << p1 << " --> " << p2 << "]" << " (" << line.polygonID << ")";
     }
 };
 
-struct Path {
-    string name;
-    unordered_map<Point, Point> m;
-
-    Path(string name) : name(name) {}
-
-    bool has(Point& key) {
-        return m.find(key) != m.end();
-    }
-
-    void set(Point& key, Point& value) {
-        m[key] = value;
-    }
-
-    Point operator[](Point& key) {
-        return m[key];
-    }
-
-    friend ostream& operator<<(ostream& out, Path& path) {
-        out << "Path " << path.name << ":\n";
-
-        vector<Point> keys;
-        for (auto& pair : path.m) {
-            keys.push_back(pair.first);
-        }
-        sort(keys.begin(), keys.end());
-
-        for (auto& key : keys) {
-            out << "\t" << key << ": " << path[key] << '\n';
-        }
-        return out;
-    }
-};
-
-struct Criticals {
-    string name;
-    unordered_map<Line*, vector<Point>> m;
-
-    Criticals(string name) : name(name) {}
-
-    void add(Line* key, Point& value) {
-        m[key].push_back(value);
-    }
-
-    vector<Point> operator[](Line* key) {
-        return m[key];
-    }
-
-    friend ostream& operator<<(ostream& out, Criticals& cs) {
-        out << "Criticals " << cs.name << ":\n";
-        for (auto& pair : cs.m) {
-            out << "\t" << pair.first << ": " << cs[pair.first] << '\n';
-        }
-        return out;
-    }
-};
-
+// Polygon represents a geometric Polygon.
 struct Polygon {
+    // Counter variable used to assign unique IDs to Polygons.
+    static int idCounter;
+
+    // The ID of this Polygon.
+    int id = -1;
+    // The number of sides of this Polygon.
     int N = 0;
+    // The Points defining the vertices of this Polygon.
     vector<Point> points;
+    // The Lines defining the border of this Polygon.
     vector<Line> lines;
+    // The area of this Polygon.
     double area = -1;
 
-    double min_x = 1000;
-    double min_y = 1000;
-    double max_x = 0;
-    double max_y = 0;
+    // Constructs an empty Polygon.
+    Polygon() {
+        id = idCounter++;
+    }
 
-    Polygon(){}
-
-    vector<Polygon*> triangulate() {
+    // Returns a list of triangle Polygons that constitute this Polygon.
+    vector<Polygon> triangulate() {
         vector<Point> points = this->points;
-        vector<Polygon*> triangles;
-        while (points.size() > 2) {
-            for (int i = 0; i < points.size() && points.size() > 2; ++i) {
-                Point& p1 = points[i];
-                Point& p2 = points[(i + 1) % points.size()];
-                Point& p3 = points[(i + 2) % points.size()];
+        vector<Polygon> triangles;
 
-                if (this->inside(p1.average(p3))) {
-                    int ints = 0;
-                    Line base{p1, p3};
-                    for (auto& line : lines) {
-                        Point p = base.intersection(line);
-                        if (p.x != -1 && p != p1 && p != p3) {
-                            ++ints;
-                        }
+        for (int i = 0; points.size() > 2; ++i) {
+            Point& p1 = points[i % points.size()];
+            Point& p2 = points[(i + 1) % points.size()];
+            Point& p3 = points[(i + 2) % points.size()];
+
+            Point avg = p1.average(p3);
+            // Check if the Polygon exists between |p1| and |p3|.
+            if (this->has(avg)) {
+                int intersections = 0;
+                Line base{p1, p3};
+                for (auto& line : lines) {
+                    Point p = base*line;
+                    if (p != nullpoint && p != p1 && p != p3) {
+                        ++intersections;
                     }
+                }
 
-                    if (ints == 0) {
-                        Polygon* triangle = new Polygon();
-                        *triangle += p1;
-                        *triangle += p2;
-                        *triangle += p3;
-                        triangle->close();
+                // Check if the Polygon only intersects the line between |p1| and |p3| at |p1| and |p3|.
+                if (intersections == 0) {
+                    Polygon triangle = Polygon();
+                    triangle += p1;
+                    triangle += p2;
+                    triangle += p3;
+                    triangle.close();
+                    triangles.push_back(triangle);
 
-                        triangles.push_back(triangle);
-                        int mid_point = (i + 1) % points.size();
-                        points.erase(points.begin() + mid_point);
-                    }
-                } 
+                    // Point |p2| can no longer be a member of any other triangle.
+                    int mid_point = (i + 1) % points.size();
+                    points.erase(points.begin() + mid_point);
+                }
             }
         }
         return triangles;
     }
 
-    void fillPath(Path& fwd) {
-        for (auto& line : lines) {
-            fwd.set(line.start, line.end);
-        }
-    }
-
+    // Closes this Polygon by constructing the border around this Polygon and calculates its area.
+    // The area of this Polygon is computed using the shoelace formula. 
     void close() {
         N = points.size();
         area = 0;
@@ -324,7 +336,7 @@ struct Polygon {
             Point& p2 = points[(i + 1) % N];
             area += p1*p2;
 
-            Line line{p1, p2};
+            Line line(p1, p2, id, i);
             lines.push_back(line);
         }
         area /= 2;
@@ -334,213 +346,43 @@ struct Polygon {
         }
     }
 
+    // Returns the area of this Polygon.
     double getArea() const {
         return abs(area);
     }
 
-    bool inside_border(Point& point) {
-        for (const auto& line : lines) {
-            if (point == line.start) {
-                return true;
-            }
+    // Returns true if this Polygon contains the given Point.
+    bool has(Point& p) {
+        // Check if the Point lies along the border of this Polygon.
+        if (any_of(lines.begin(), lines.end(), [&](const Line& line) {
+            return line.has(p);
+        })) {
+            return true;
+        };
 
-            // |
-            // x
-            // |
-            if (line.vertical) {
-                if (point.x == line.min_x && line.min_y <= point.y && point.y <= line.max_y) {
-                    return true;
-                }
-            //   /
-            //  x
-            // /
-            } else if (line.min_x <= point.x && point.x <= line.max_x) {
-                double y = line.m*point.x + line.b;
-                if (abs(y - point.y) < EPSILON) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+        Point& start = p;
+        Point end = Point{p.x + 10001, p.y + 1};
+        Line base = Line{start, end}; 
 
-    bool inside_border(Point&& point) {
-        return inside_border(point);
-    }
-
-    bool inside_region(Point& point) {
-        Point end = Point{point.x + 10001, point.y + 1};
-        Line base = Line{point, end}; 
-
+        // Check if the Point lies strictly within this Polygon.
         bool in = false;
-
         for (auto& line : lines) {
-            Point p = base.intersection(line);
-            if (p.x != -1) {
+            if (base*line != nullpoint) {
                 in = !in;
             }
         }
         return in;
     }
 
-    bool inside_region(Point&& point) {
-        return inside_region(point);
-    }
-
-    bool inside(Point& point) {
-        bool in = inside_border(point) || inside_region(point);
-        return in;
-    }
-
-    bool inside(Point&& point) {
-        return inside(point);
-    }
-
-    bool inside(Polygon& poly) {
-        return all_of(points.begin(), points.end(), [&](Point& p){
-            return poly.inside(p);
-        });
-    }
-
-    bool box_check(Polygon& intruder) {
-        return (min_x >= intruder.max_x ||
-                max_x <= intruder.min_x ||
-                min_y >= intruder.max_y ||
-                max_y <= intruder.min_y);
-    }
-
-    double overlap(Polygon& guest) {
-        Polygon& host = *this;
-
-        if (host.box_check(guest)) {
-            return 0;
-        } else if (host.inside(guest)) {
-            return host.getArea();
-        } else if (guest.inside(host)) {
-            return guest.getArea();
-        }
-        
-
-        Path host_fwd("Forward [Host]");
-        Path guest_fwd("Forward [Guest]");
-
-        host.fillPath(host_fwd);
-        guest.fillPath(guest_fwd);
-
-        Criticals cs_host("Host");
-        Criticals cs_guest("Guest");
-
-        unordered_set<Point> cpoints;
-
-        for (auto& gline : guest.lines) {
-            for (auto& hline : host.lines) {
-                Point p = hline.intersection(gline);
-
-                bool in_bck, in_fwd;
-                if (gline.vertical) {
-                    in_bck = host.inside(Point{p.x, p.y - EPSILON});
-                    in_fwd = host.inside(Point{p.x, p.y + EPSILON});
-                } else {
-                    double x_bck = p.x - EPSILON;
-                    double x_fwd = p.x + EPSILON;
-
-                    in_bck = host.inside(Point{x_bck, x_bck*gline.m + gline.b});
-                    in_fwd = host.inside(Point{x_fwd, x_fwd*gline.m + gline.b});
-                }
-
-                if (p.x != -1) {
-                    if (p != hline.start && p != hline.end) {
-                        cs_host.add(&hline, p);
-                        cpoints.insert(p);
-                    }
-                    if (p != gline.start && p != gline.end) {
-                        cs_guest.add(&gline, p);
-                        cpoints.insert(p);
-                    }
-                }
-            }
-        }
-
-        for (auto& cs : {cs_host, cs_guest}) {
-            Path& fwd = (cs.name == "Host") ? host_fwd : guest_fwd;
-
-            for (auto& line_vec : cs.m) {
-                Line& line = *line_vec.first;
-                vector<Point> v = line_vec.second;
-
-                bool ordered = line.start < line.end;
-
-                sort(v.begin(), v.end(), [&](const Point p1, const Point p2) {
-                    return p1 < p2 == ordered;
-                });
-
-                Point before = line.start;
-                for (auto& p : v) {
-                    fwd.set(before, p);
-                    fwd.set(p, line.end);
-
-                    before = p;
-                }
-            }
-        }
-
-        unordered_set<Point> visited;
-        double overlap_area = 0;
-        for (auto start : cpoints) {
-            if (!guest.inside(start) || visited.find(start) != visited.end()) {
-                continue;
-            }
-            
-            Polygon poly{};
-
-            bool valid = true;
-            Point p = start;
-            do {
-                visited.insert(p);
-                poly += p;
-
-                Point next = host_fwd[p];
-                if (!guest.inside(next)) {
-                    next = guest_fwd[p];
-                }
-                p = next;
-
-                valid = host.inside(p) && guest.inside(p);
-            } while (valid && p != start);
-            poly.close();
-
-            valid &= poly.N > 2;
-
-            if (valid) {
-                overlap_area += poly.getArea();
-            }
-        }
-
-        return overlap_area;
-    }
-
+    // Adds the given Point to this Polygon.
     Polygon& operator+=(Point& p) {
-        min_x = min(min_x, p.x);
-        min_y = min(min_y, p.y);
-        max_x = max(max_x, p.x);
-        max_y = max(max_y, p.y);
-
-        if (points.size() > 1) {
-            Point& p1 = points[points.size() - 2];
-            Point& p2 = points[points.size() - 1];
-            Line a{p1, p2};
-            Line b{p2, p};
-            if (a.collinear(b)) {
-                return *this;
-            }
-        }
-
         points.push_back(p);
         return *this;
     }
 
+    // Returns the given stream with a representation of the given Polygon.
     friend ostream& operator<<(ostream& out, const Polygon& poly) {
-        out << "[" << poly.points[0];
+        out << "[" << poly.id << ": " << poly.points[0];
         for (int i = 1; i < poly.N; ++i) {
             out << " -> " << poly.points[i];
         }
@@ -548,25 +390,243 @@ struct Polygon {
     }
 };
 
+// Event represents the creation, termination, or intersection of a Line.
+struct Event {
+    // The type of event.
+    //   '+' refers to the creation of a Line.
+    //   '-' refers to the termination of a Line.
+    //   'x' refers to the intersection of two Lines.
+    char code;
+    // The Line associated with the Event.
+    Line line;
+    // The Point at which this Event occurs.
+    Point point;
+
+    // Constructs an Event using the given parameters.
+    Event(const char code, const Line& line, const Point& point) : code(code), line(line), point(point) {}
+
+    // Returns an Event representing the creation of the given Line and the provided Point. 
+    static Event create(const Line& line, const Point& p) {
+        return Event('+', line, p);
+    }
+
+    // Returns an Event representing the termination of the given Line and the provided Point.
+    static Event terminate(const Line& line, const Point& p) {
+        return Event('-', line, p);
+    }
+
+    // Returns an Event representing the intersection of two Lines at the given Point.
+    static Event intersect(const Point& p) {
+        return Event('x', Line{}, p);
+    }
+
+    // Returns true if this Event occurs before the given Event (depending on the ordering of the Points). 
+    bool operator<(const Event& event) const {
+        return point < event.point;
+    }
+
+    // Returns true if this Event represents the same Event as the given Event.
+    bool operator==(const Event& event) const {
+        return code == event.code && point == event.point && line == event.line;
+    }
+
+    // Returns the given stream with a representation of the given Event.
+    friend ostream& operator<<(ostream& out, const Event& event) {
+        return out << event.code << " @" << event.point << " " << event.line;
+    }
+};
+
+namespace std {
+    // Template specialization to return the hash of a Point.
+    template <> struct hash<Point> {
+        float operator()(const Point& p) const {
+            return p.x*10000 + p.y;
+        }
+    };
+
+    // Template specialization to return the hash of a Line.
+    template <> struct hash<Line> {
+        double operator()(const Line& line) const {
+            return line.polygonID*10 + line.lineID;
+        }
+    };
+
+    // Template specialization to return the hash of an Event.
+    template <> struct hash<Event> {
+        double operator()(const Event& event) const {
+            int c;
+            if (event.code == '+') {
+                c = 1;
+            } else if (event.code == '-') {
+                c = 2;
+            } else {
+                c = 3;
+            }
+            return (static_cast<double>(hash<Point>{}(event.point))*MAX_INT) + 10*hash<Line>{}(event.line) + c;
+        }
+    };
+}
 
 // Declarations
 
+// Initialize the Polygon ID counter to 0.
+int Polygon::idCounter = 0;
+
 // Functions
 
+// Returns the total Paint used to draw the given Polygons.
+double getPaint(vector<Polygon>& triangles) {
+    double paint = 0;
+    for (const auto& tri : triangles) {
+        paint += tri.getArea();
+    }
+    return paint;
+}
+
+// Returns the total Canvas area covered by the given Polygon triangles.
+// This function uses a line-sweeping algorithm to compute the union area.
+double getCanvas(vector<Polygon>& triangles) {
+    vector<Event> events;
+
+    // Instantiate the create and terminate Events.
+    for (const auto& tri : triangles) {
+        for (const auto& line : tri.lines) {
+            // Vertical Lines do not bound a Polygon triangle in the left-to-right sweep.
+            if (line.vertical) {
+                continue;
+            }
+
+            // The creation Point is determined by the leftmost Point of the Line. 
+            Point left = line.start < line.end ? line.start : line.end;
+            events.push_back(Event::create(line, left));
+
+            // The termination Point is determined by the rightmost Point of the Line.
+            Point right = line.end < line.start ? line.start : line.end;
+            events.push_back(Event::terminate(line, right));
+        }
+    }
+
+    // Instantiate the intersection Events.
+    for (int i = 0; i < triangles.size(); ++i) {
+        Polygon& t1 = triangles[i];
+        for (int j = i + 1; j < triangles.size(); ++j) {
+            Polygon& t2 = triangles[j];
+            for (const auto& l1 : t1.lines) {
+                for (const auto& l2 : t2.lines) {
+                    Point p = l1*l2;
+                    // There is no value in adding intersection Points where Events already exist.
+                    if (p != nullpoint && !l1.vertex(p) && !l2.vertex(p)) {
+                        events.push_back(Event::intersect(p));
+                    }
+                }
+            }
+        }
+    }
+    // Sort the events by the order of their Points.
+    sort(events.begin(), events.end());
+
+    // Associate each x-coordinate with a vector of corresponding Events. 
+    map<double, vector<Event>> event_map;
+    for (const auto& event : events) {
+        event_map[event.point.x].push_back(event);
+    }
+
+    // Maintain a set of active Lines through the sweep.
+    unordered_set<Line> active_lines;
+    double prev_x = -1;
+    double canvas = 0;
+    for (auto& pair : event_map) {
+        double x = pair.first;
+        vector<Event>& new_events = pair.second;
+
+        // Sort the active Lines in increasing value at |x|.
+        // If two Lines share the value at |x|, sort them based on their value at |prev_x|.
+        vector<Line> lines;
+        for (const auto& line : active_lines) {
+            lines.push_back(line);
+        }
+        sort(lines.begin(), lines.end(), [&](const Line& l1, const Line& l2) {
+            double y1 = l1[x];
+            double y2 = l2[x];
+            return equals(y1, y2) ? l1[prev_x] < l2[prev_x] : y1 < y2;
+        });
+
+        // Calculate the union area between this x-coordinate and the previous x-coordinate
+        // based on the set of active Lines.
+        double min_prev_y = 1001;
+        double max_prev_y = -1;
+        double min_next_y = 1001; 
+        double max_next_y = -1;
+        // Maintain a set of Polygons that need to closed before computing an area partition.
+        unordered_set<int> segment;
+        for (const auto& line : lines) {
+            min_prev_y = min(min_prev_y, line[prev_x]);
+            max_prev_y = max(max_prev_y, line[prev_x]);
+            min_next_y = min(min_next_y, line[x]);
+            max_next_y = max(max_next_y, line[x]);
+
+            int polyID = line.polygonID;
+            if (segment.find(polyID) != segment.end()) {
+                segment.erase(polyID);
+            } else {
+                segment.insert(polyID);
+            }
+
+            // The current line segment is complete. 
+            if (segment.empty()) {
+                // Compute the area of the resultant. quadrilateral.
+                double avg_min_y = (min_prev_y + min_next_y)/2.0;
+                double avg_max_y = (max_prev_y + max_next_y)/2.0;
+                double delta = (avg_max_y - avg_min_y)*(x - prev_x);
+                canvas += delta;
+
+                if (DEBUG) {
+                    cerr << "Adding polygon " <<
+                        Point{prev_x, min_prev_y} << " --> " <<
+                        Point{prev_x, max_prev_y} << " --> " <<
+                        Point{x, min_next_y} << " --> " <<
+                        Point{x, max_next_y} << ": ";
+                    cerr << avg_min_y << " to " << avg_max_y << " x " << (x - prev_x) << " = " << delta << '\n';
+                }
+
+                min_prev_y = 1001;
+                max_prev_y = -1;
+                min_next_y = 1001; 
+                max_next_y = -1;
+            }       
+        }
+        assert(segment.empty());
+
+        // Adjust the current Event set based on the Events that occur at this x-coordinate.
+        for (const auto& event : new_events) {
+            if (event.code == '-') {
+                active_lines.erase(event.line);
+            } else if (event.code == '+') {
+                active_lines.insert(event.line);
+            }
+        }
+
+        prev_x = x;
+    }
+    return canvas;
+}
+
+// Execution entry point.
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
+    nullpoint = Point(-1, -1);
+
     int N;
     cin >> N;
 
-    vector<Polygon*> polygons;
+    vector<Polygon> triangles;
     for (int i = 0; i < N; ++i) {
         int sides;
         cin >> sides;
 
-        Polygon poly{};
-
+        Polygon poly;
         for (int j = 0; j < sides; ++j) {
             double x, y;
             cin >> x >> y;
@@ -576,30 +636,14 @@ int main() {
         }
         poly.close();
 
-        for (auto& tri : poly.triangulate()) {
-            polygons.push_back(tri);
+        for (const auto& tri : poly.triangulate()) {
+            triangles.push_back(tri);
         }
     }
 
-    double paint = 0;
-    for (const auto& poly : polygons) {
-        paint += poly->getArea();
-    }
-
-    double canvas = paint;
-    for (int i = 0; i < polygons.size(); ++i) {
-        for (int j = i + 1; j < polygons.size(); ++j) {
-            Polygon& host = *polygons[i];
-            Polygon& guest = *polygons[j];
-            canvas -= host.overlap(guest);
-        }
-    }
- 
+    double paint = getPaint(triangles);
+    double canvas = getCanvas(triangles);
     printf("%.8f %.8f\n", paint, canvas);
-
-    for (auto& poly : polygons) {
-        delete poly;
-    }
 
     return 0;
 }
