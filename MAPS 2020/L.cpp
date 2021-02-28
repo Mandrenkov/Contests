@@ -2,46 +2,6 @@
 
 using namespace std;
 
-// Output stream overloads.
-template<
-    // Output stream overload for STL containers with one explicit type parameter.
-    template<class> class Range, class T,
-    typename = enable_if_t<std::is_same_v<Range<T>, std::deque<T>> ||
-                           std::is_same_v<Range<T>, std::forward_list<T>> ||
-                           std::is_same_v<Range<T>, std::list<T>> ||
-                           std::is_same_v<Range<T>, std::multiset<T>> ||
-                           std::is_same_v<Range<T>, std::set<T>> ||
-                           std::is_same_v<Range<T>, std::unordered_multiset<T>> ||
-                           std::is_same_v<Range<T>, std::unordered_set<T>> ||
-                           std::is_same_v<Range<T>, std::vector<T>>>
->
-std::ostream& operator<<(std::ostream& out, const Range<T>& range) {
-    constexpr auto brackets = std::is_same_v<Range<T>, vector<T>> ? "[]" : "{}";
-    out << brackets[0];
-    for (auto it = range.begin(); it != range.end(); ++it) {
-        out << *it << (next(it) != range.end() ? ", " : "");
-    }
-    return out << brackets[1];
-}
-
-template<
-    // Output stream overload for STL containers with two explicit type parameters.
-    template<class, class> class Range, class K, class V,
-    typename = enable_if_t<std::is_same_v<Range<K, V>, std::map<K, V>> ||
-                           std::is_same_v<Range<K, V>, std::multimap<K, V>> ||
-                           std::is_same_v<Range<K, V>, std::unordered_map<K, V>> ||
-                           std::is_same_v<Range<K, V>, std::unordered_multimap<K, V>>>
->
-std::ostream& operator<<(std::ostream& out, const Range<K, V>& range) {
-    out << '{';
-    for (auto it = range.begin(); it != range.end(); ++it) {
-        out << it->first << ": " << it->second << (next(it) != range.end() ? ", " : "");
-    }
-    return out << '}';
-}
-
-// -------------------------------------------------------------------------------------
-
 // Graph represents a directed graph.
 struct Graph {
     // Adds the given node to this Graph.
@@ -209,11 +169,6 @@ struct Graph {
     unordered_map<int, unordered_set<int>> bak_edges;
     vector<vector<bool>> connected;
 };
-
-// Serialializes a Graph to the given output stream.
-ostream& operator<<(ostream& out, const Graph& graph) {
-    return out << "(Nodes = " << graph.nodes << ", Fwd = " << graph.fwd_edges << ")";
-}
 
 // Solves the task at hand by simulating each possible trace of Khan's algorithm.
 int slow(Graph& G) {
