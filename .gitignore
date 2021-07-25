@@ -33,4 +33,6 @@
 
 # Output
 *.out.txt
+
+# Library
 Library/build
