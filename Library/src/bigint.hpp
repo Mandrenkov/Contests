@@ -21,18 +21,25 @@ public:
     BigInt operator%(const BigInt&) const;
     BigInt& operator%=(const BigInt&);
 
-    BigInt operator-();
+    bool operator==(const BigInt&) const;
+    bool operator!=(const BigInt&) const;
+    bool operator<(const BigInt&) const;
+    bool operator<=(const BigInt&) const;
+    bool operator>(const BigInt&) const;
+    bool operator>=(const BigInt&) const;
+
+    BigInt operator-() const;
+
+    BigInt abs() const;
 
     friend std::ostream& operator<<(std::ostream&, const BigInt&);
 
 private:
-    using word_t = uint32_t;
-
     // Making the base a power of 10 is useful for output streaming.
     static constexpr uint64_t base = 1000 * 1000 * 1000;
 
     bool positive;
-    std::vector<word_t> words;
+    std::vector<uint32_t> words;
 };
 
 
@@ -79,4 +86,10 @@ std::ostream& operator<<(std::ostream& out, const BigInt& num) {
     out.copyfmt(init);
 
     return out;
+}
+
+BigInt BigInt::abs() const {
+    BigInt num = *this;
+    num.positive = true;
+    return num;
 }
