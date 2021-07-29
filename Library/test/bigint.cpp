@@ -52,3 +52,10 @@ TEST_CASE("BigInt::operator!=()", "[BigInt]") {
     CHECK(BigInt(9876543210LL) != BigInt(-9876543210LL));
     CHECK(BigInt(9876543210LL) != BigInt(7876543210LL));
 }
+
+
+TEST_CASE("BigInt::operator-()", "[BigInt]") {
+    CHECK(serialize(-BigInt()) == "0");
+    CHECK(serialize(-BigInt(1LL)) == "-1");
+    CHECK(serialize(-BigInt(-2LL)) == "2");
+}

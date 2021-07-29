@@ -67,6 +67,14 @@ BigInt::BigInt(int64_t val) {
     }
 }
 
+BigInt BigInt::operator-() const {
+    BigInt num = *this;
+    if (num != BigInt()) {
+        num.positive = !positive;
+    }
+    return num;
+}
+
 bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
 }
