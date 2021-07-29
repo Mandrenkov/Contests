@@ -6,6 +6,8 @@ public:
     BigInt(int64_t);
     BigInt(const std::string&);
 
+    BigInt operator-() const;
+
     BigInt operator+(const BigInt&) const;
     BigInt& operator+=(const BigInt&);
 
@@ -22,24 +24,25 @@ public:
     BigInt& operator%=(const BigInt&);
 
     bool operator==(const BigInt&) const;
-    bool operator!=(const BigInt&) const;
     bool operator<(const BigInt&) const;
+
+    bool operator!=(const BigInt&) const;
     bool operator<=(const BigInt&) const;
     bool operator>(const BigInt&) const;
     bool operator>=(const BigInt&) const;
-
-    BigInt operator-() const;
 
     BigInt abs() const;
 
     friend std::ostream& operator<<(std::ostream&, const BigInt&);
 
 private:
+    using word_t = uint32_t;
+
     // Making the base a power of 10 is useful for output streaming.
     static constexpr uint64_t base = 1000 * 1000 * 1000;
 
     bool positive;
-    std::vector<uint32_t> words;
+    std::vector<word_t> words;
 };
 
 
@@ -79,9 +82,44 @@ bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
 }
 
+bool BigInt::operator<(const BigInt& rhs) const {
+    const BigInt& lhs = *this;
+
+    if (lhs.positive ^ rhs.positive) {
+        return rhs.positive;
+    }
+
+    // Ensure that (lhs < rhs) && (rhs < lhs) never happens.
+    if (lhs.words == rhs.words) {
+        return false;
+    }
+
+    // Account for the lttle-endian ordering of words.
+    if (lhs.words.size() != rhs.words.size()) {
+        return lhs.words.size() < rhs.words.size() == lhs.positive;
+    }
+
+    const bool comparison = std::lexicographical_compare(lhs.words.rbegin(), lhs.words.rend(),
+                                                         rhs.words.rbegin(), rhs.words.rend());
+    return lhs.positive ? comparison : !comparison;
+}
+
 bool BigInt::operator!=(const BigInt& rhs) const {
     return !(*this == rhs);
 }
+
+bool BigInt::operator<=(const BigInt& rhs) const {
+    return !(rhs < *this);
+}
+
+bool BigInt::operator>(const BigInt& rhs) const {
+    return rhs < *this;
+}
+
+bool BigInt::operator>=(const BigInt& rhs) const {
+    return !(*this < rhs);
+}
+
 
 BigInt BigInt::abs() const {
     BigInt num = *this;
