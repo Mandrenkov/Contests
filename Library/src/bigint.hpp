@@ -67,6 +67,20 @@ BigInt::BigInt(int64_t val) {
     }
 }
 
+bool BigInt::operator==(const BigInt& rhs) const {
+    return positive == rhs.positive && words == rhs.words;
+}
+
+bool BigInt::operator!=(const BigInt& rhs) const {
+    return !(*this == rhs);
+}
+
+BigInt BigInt::abs() const {
+    BigInt num = *this;
+    num.positive = true;
+    return num;
+}
+
 std::ostream& operator<<(std::ostream& out, const BigInt& num) {
     if (!num.positive) {
         out << '-';
@@ -86,10 +100,4 @@ std::ostream& operator<<(std::ostream& out, const BigInt& num) {
     out.copyfmt(init);
 
     return out;
-}
-
-BigInt BigInt::abs() const {
-    BigInt num = *this;
-    num.positive = true;
-    return num;
 }

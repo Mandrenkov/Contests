@@ -34,8 +34,21 @@ TEST_CASE("BigInt::abs()", "[BigInt]") {
     CHECK(serialize(BigInt().abs()) == "0");
 
     CHECK(serialize(BigInt(1LL).abs()) == "1");
-    CHECK(serialize(BigInt(987654321000LL).abs()) == "987654321000");
+    CHECK(serialize(BigInt(9876543210LL).abs()) == "9876543210");
 
     CHECK(serialize(BigInt(-1LL).abs()) == "1");
-    CHECK(serialize(BigInt(-987654321000LL).abs()) == "987654321000");
+    CHECK(serialize(BigInt(-9876543210LL).abs()) == "9876543210");
+}
+
+TEST_CASE("BigInt::operator==()", "[BigInt]") {
+    CHECK(BigInt() == BigInt());
+    CHECK(BigInt(123LL) == BigInt(123LL));
+    CHECK(BigInt(-9876543210LL) == BigInt(-9876543210LL));
+}
+
+TEST_CASE("BigInt::operator!=()", "[BigInt]") {
+    CHECK(BigInt() != BigInt(1LL));
+    CHECK(BigInt(123LL) != BigInt(321LL));
+    CHECK(BigInt(9876543210LL) != BigInt(-9876543210LL));
+    CHECK(BigInt(9876543210LL) != BigInt(7876543210LL));
 }
