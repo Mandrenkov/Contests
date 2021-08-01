@@ -28,6 +28,22 @@ TEST_CASE("BigInt::BigInt(...)", "[BigInt]") {
         CHECK(serialize(BigInt(-1000000000)) == "-1000000000");
         CHECK(serialize(BigInt(-9223372036854775807LL)) == "-9223372036854775807");
     }
+
+    SECTION("BigInt(const std::string&)") {
+        CHECK(serialize(BigInt("0")) == "0");
+        CHECK(serialize(BigInt("123")) == "123");
+        CHECK(serialize(BigInt("999999999")) == "999999999");
+        CHECK(serialize(BigInt("01000000000")) == "1000000000");
+        CHECK(serialize(BigInt("9223372036854775807")) == "9223372036854775807");
+        CHECK(serialize(BigInt("00000000000000000000000000")) == "0");
+
+        CHECK(serialize(BigInt("-0")) == "0");
+        CHECK(serialize(BigInt("-1")) == "-1");
+        CHECK(serialize(BigInt("-999999999")) == "-999999999");
+        CHECK(serialize(BigInt("-01000000000")) == "-1000000000");
+        CHECK(serialize(BigInt("-9223372036854775807")) == "-9223372036854775807");
+        CHECK(serialize(BigInt("-00000000000000000000000000")) == "0");
+    }
 }
 
 TEST_CASE("BigInt::operator-()", "[BigInt]") {

@@ -70,6 +70,43 @@ BigInt::BigInt(int64_t val) {
     }
 }
 
+BigInt::BigInt(const std::string& val) {
+    static const std::string error =
+        "Argument to BigInt(const std::string&) does not match (-?[0-9]+).";
+
+    if (val == "" || (val == "-")) {
+        throw error;
+    }
+
+    // To be corrected if the remainder of the input is zero.
+    positive = val.front() != '-';
+
+    // Take the first and last index of the magnitude.
+    const int beg = positive ? 0 : 1;
+    const int end = val.size() - 1;
+
+    static const int chunk = std::log10(base);
+
+    for (int i = end; i >= beg; i -= chunk) {
+        word_t word = 0;
+        for (int j = std::max(beg, i - chunk + 1); j <= i; ++j) {
+            if (val[j] < '0' || val[j] > '9') {
+                throw error;
+            }
+            word = 10 * word + val[j] - '0';
+        }
+        words.emplace_back(word);
+    }
+
+    // Remove leading zeros.
+    while (words.size() > 1 && words.back() == 0) {
+        words.pop_back();
+    }
+
+    // Correct the sign in case the input is zero.
+    positive = positive || words == std::vector<word_t>{0};
+}
+
 BigInt BigInt::operator-() const {
     BigInt num = *this;
     if (num != BigInt()) {
