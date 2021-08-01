@@ -146,24 +146,50 @@ TEST_CASE("BigInt::operator+()", "[BigInt]") {
               BigInt("-889120464295620859874489506906216159541811927511006472679060203691340689788016525584254564540511369") ==
               BigInt("-135186553857536932636813187349413866717162154073170553631058237733115347140592022913806169253743621"));
     }
+
+    SECTION("Random") {
+        auto rng = std::mt19937(std::random_device{}());
+        auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<int>::min(),
+                                                            std::numeric_limits<int>::max());
+
+        for (size_t i = 0; i < 1000; ++i) {
+            long long lhs = dis(rng);
+            long long rhs = dis(rng);
+            CHECK(BigInt(lhs + rhs) == BigInt(lhs) + BigInt(rhs));
+        }
+    }
 }
 
 TEST_CASE("BigInt::operator-(...)", "[BigInt]") {
-    CHECK(BigInt() - BigInt() == 0);
-    CHECK(BigInt(1234567890) - BigInt(1234567890) == 0);
+    SECTION("(+) - (+)") {
+        CHECK(BigInt() - BigInt() == 0);
+        CHECK(BigInt(1234567890) - BigInt(1234567890) == 0);
 
-    CHECK(BigInt(3) - BigInt(2) == 1);
-    CHECK(BigInt(2) - BigInt(3) == -1);
+        CHECK(BigInt(3) - BigInt(2) == 1);
+        CHECK(BigInt(2) - BigInt(3) == -1);
 
-    CHECK(BigInt(1234567890) - BigInt(987654321) == 246913569);
-    CHECK(BigInt(987654321) - BigInt(1234567890) == -246913569);
+        CHECK(BigInt(1234567890) - BigInt(987654321) == 246913569);
+        CHECK(BigInt(987654321) - BigInt(1234567890) == -246913569);
 
-    CHECK(BigInt(1000000000LL * 1000000000LL) - BigInt(1) == 1000000000LL * 1000000000LL - 1LL);
-    CHECK(BigInt(1) - BigInt(1000000000LL * 1000000000LL) == -1000000000LL * 1000000000LL + 1LL);
+        CHECK(BigInt(1000000000LL * 1000000000LL) - BigInt(1) == 1000000000LL * 1000000000LL - 1LL);
+        CHECK(BigInt(1) - BigInt(1000000000LL * 1000000000LL) == -1000000000LL * 1000000000LL + 1LL);
 
-    CHECK(BigInt("753933910438083927237676319556802292824649773437835919048001965958225342647424502670448395286767748") -
-          BigInt("889120464295620859874489506906216159541811927511006472679060203691340689788016525584254564540511369") ==
-          BigInt("-135186553857536932636813187349413866717162154073170553631058237733115347140592022913806169253743621"));
+        CHECK(BigInt("753933910438083927237676319556802292824649773437835919048001965958225342647424502670448395286767748") -
+            BigInt("889120464295620859874489506906216159541811927511006472679060203691340689788016525584254564540511369") ==
+            BigInt("-135186553857536932636813187349413866717162154073170553631058237733115347140592022913806169253743621"));
+    }
+
+    SECTION("Random") {
+        auto rng = std::mt19937(std::random_device{}());
+        auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<int>::min(),
+                                                            std::numeric_limits<int>::max());
+
+        for (size_t i = 0; i < 1000; ++i) {
+            long long lhs = dis(rng);
+            long long rhs = dis(rng);
+            CHECK(BigInt(lhs - rhs) == BigInt(lhs) - BigInt(rhs));
+        }
+    }
 }
 
 
