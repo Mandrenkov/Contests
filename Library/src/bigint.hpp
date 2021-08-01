@@ -123,8 +123,9 @@ BigInt BigInt::operator+(const BigInt& rhs) const {
 BigInt& BigInt::operator+=(const BigInt& rhs) {
     BigInt& lhs = *this;
 
+    // Case 1: Sum the magnitudes of the LHS and RHS.
+    // -------------------------------------------------------------------------
     if (lhs.positive == rhs.positive) {
-        // Sum the magnitudes of the LHS and RHS.
         uint64_t carry = 0;
 
         for (size_t i = 0; i < lhs.words.size() || i < rhs.words.size() || carry > 0; ++i) {
@@ -145,12 +146,16 @@ BigInt& BigInt::operator+=(const BigInt& rhs) {
         return lhs;
     }
 
+    // Case 2: The LHS and RHS are negatives of each other.
+    // -------------------------------------------------------------------------
     if (lhs.abs() == rhs.abs()) {
-        // The sum is exactly 0.
         lhs.positive = true;
         lhs.words = {0};
         return lhs;
     }
+
+    // Case 3: Subtract the magnitudes of the LHS and RHS.
+    // -------------------------------------------------------------------------
 
     const bool sign_swap = lhs.abs() < rhs.abs();
 

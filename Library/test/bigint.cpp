@@ -43,6 +43,11 @@ TEST_CASE("BigInt::BigInt(...)", "[BigInt]") {
         CHECK(serialize(BigInt("-01000000000")) == "-1000000000");
         CHECK(serialize(BigInt("-9223372036854775807")) == "-9223372036854775807");
         CHECK(serialize(BigInt("-00000000000000000000000000")) == "0");
+
+        REQUIRE_THROWS(BigInt(""));
+        REQUIRE_THROWS(BigInt("-"));
+        REQUIRE_THROWS(BigInt("-123.0"));
+        REQUIRE_THROWS(BigInt("-123abc456"));
     }
 }
 
