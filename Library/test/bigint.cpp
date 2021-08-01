@@ -119,6 +119,20 @@ TEST_CASE("BigInt::operator+()", "[BigInt]") {
     }
 }
 
+TEST_CASE("BigInt::operator-(...)", "[BigInt]") {
+    CHECK(BigInt() - BigInt() == 0);
+    CHECK(BigInt(1234567890) - BigInt(1234567890) == 0);
+
+    CHECK(BigInt(3) - BigInt(2) == 1);
+    CHECK(BigInt(2) - BigInt(3) == -1);
+
+    CHECK(BigInt(1234567890) - BigInt(987654321) == 246913569);
+    CHECK(BigInt(987654321) - BigInt(1234567890) == -246913569);
+
+    CHECK(BigInt(1000000000LL * 1000000000LL) - BigInt(1) == 1000000000LL * 1000000000LL - 1LL);
+    CHECK(BigInt(1) - BigInt(1000000000LL * 1000000000LL) == -1000000000LL * 1000000000LL + 1LL);
+}
+
 
 TEST_CASE("BigInt::abs()", "[BigInt]") {
     CHECK(serialize(BigInt().abs()) == "0");

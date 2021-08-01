@@ -80,8 +80,7 @@ BigInt BigInt::operator-() const {
 
 BigInt BigInt::operator+(const BigInt& rhs) const {
     BigInt lhs = *this;
-    lhs += rhs;
-    return lhs;
+    return lhs += rhs;
 }
 
 BigInt& BigInt::operator+=(const BigInt& rhs) {
@@ -129,7 +128,7 @@ BigInt& BigInt::operator+=(const BigInt& rhs) {
     // Track the quantity of the next word from |large| that has been "borrowed".
     uint64_t debt = 0;
 
-    for (size_t i = 0; i < large.words.size() || i < small.words.size(); ++i) {
+    for (size_t i = 0; i < large.words.size(); ++i) {
         const uint64_t l = i < large.words.size() ? large.words[i] : 0;
         const uint64_t s = i < small.words.size() ? small.words[i] : 0;
 
@@ -143,8 +142,11 @@ BigInt& BigInt::operator+=(const BigInt& rhs) {
             debt = 1;
         }
 
-        // Since |large| >= |small| there is never a need to extend |lhs.words|.
-        lhs.words[i] = diff;
+        if (i == lhs.words.size()) {
+            lhs.words.emplace_back(diff);
+        } else {
+            lhs.words[i] = diff;
+        }
     }
 
     // Remove leading zeros.
@@ -155,6 +157,13 @@ BigInt& BigInt::operator+=(const BigInt& rhs) {
     return lhs;
 }
 
+BigInt BigInt::operator-(const BigInt& rhs) const {
+    return *this + (-rhs);
+}
+
+BigInt& BigInt::operator-=(const BigInt& rhs) {
+    return *this += -rhs;
+}
 
 bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
