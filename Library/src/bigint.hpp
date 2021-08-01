@@ -207,6 +207,75 @@ BigInt& BigInt::operator-=(const BigInt& rhs) {
     return *this += -rhs;
 }
 
+BigInt BigInt::operator*(const BigInt& rhs) const {
+    BigInt lhs = *this;
+    return lhs *= rhs;
+}
+
+BigInt& BigInt::operator*=(const BigInt& rhs) {
+    BigInt& lhs = *this;
+
+    lhs.positive = lhs.positive == rhs.positive;
+
+    // Take |large| >= |small| for convenience.
+    const bool swapped = lhs.abs() < rhs.abs();
+    const auto& large = swapped ? rhs : lhs;
+    const auto& small = swapped ? lhs : rhs;
+
+    // Base Case: The smaller operand fits into a single word.
+    // -------------------------------------------------------------------------
+    if (small.words.size() == 1) {
+        uint64_t carry = 0;
+
+        // Cache the small product operand (SPO) in case the loop overwrites it.
+        const uint64_t spo = small.words[0];
+
+        for (size_t i = 0; i < large.words.size() || carry > 0; ++i) {
+            const uint64_t lpo = i < large.words.size() ? large.words[i] : 0;
+
+            const uint64_t total = lpo * spo + carry;
+            const uint64_t sum = total % base;
+            carry = total / base;
+
+            if (i == lhs.words.size()) {
+                lhs.words.emplace_back(sum);
+            } else {
+                lhs.words[i] = sum;
+            }
+        }
+
+        return lhs;
+    }
+
+    // Recursive Case: See https://en.wikipedia.org/wiki/Karatsuba_algorithm.
+    // -------------------------------------------------------------------------
+    const size_t shift = small.words.size() / 2;
+
+    BigInt lhs_ [2] = {lhs, lhs};
+    lhs_[0].words.erase(lhs_[0].words.begin() + shift, lhs_[0].words.end());
+    lhs_[1].words.erase(lhs_[1].words.begin(), lhs_[1].words.begin() + shift);
+
+    BigInt rhs_ [2] = {rhs, rhs};
+    rhs_[0].words.erase(rhs_[0].words.begin() + shift, rhs_[0].words.end());
+    rhs_[1].words.erase(rhs_[1].words.begin(), rhs_[1].words.begin() + shift);
+
+    // Allocate a vector for prepending elements; padding a BigInt with n
+    // zeros from the LSB side represents a multiplication by pow(base, n).
+    const std::vector<word_t> buffer(2 * shift);
+
+    BigInt z2 = lhs_[1] * rhs_[1];
+    z2.words.insert(z2.words.begin(), buffer.begin(), buffer.end());
+
+    BigInt z1 = (lhs_[1] * rhs_[0]) + (lhs_[0] * rhs_[1]);
+    z1.words.insert(z1.words.begin(), buffer.begin(), buffer.begin() + shift);
+
+    BigInt z0 = lhs_[0] * rhs_[0];
+
+    lhs.words = (z2 + z1 + z0).words;
+    return lhs;
+}
+
+
 bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
 }
