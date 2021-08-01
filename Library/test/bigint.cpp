@@ -85,7 +85,7 @@ TEST_CASE("BigInt::operator<=>()", "[BigInt]") {
 }
 
 TEST_CASE("BigInt::operator+()", "[BigInt]") {
-    SECTION("Same Sign") {
+    SECTION("(+) + (+) or (-) + (-)") {
         CHECK(BigInt() + BigInt() == 0);
 
         CHECK(BigInt(500000000) + BigInt(500000000) == 1000000000);
@@ -101,9 +101,7 @@ TEST_CASE("BigInt::operator+()", "[BigInt]") {
         CHECK(BigInt(-1234567890) + BigInt(-1234567890) == -2469135780);
     }
 
-    SECTION("Different Sign") {
-        CHECK(BigInt() + BigInt() == 0);
-
+    SECTION("(+) + (-) or (-) + (+)") {
         CHECK(BigInt(123) + BigInt(-123) == 0);
         CHECK(BigInt(-123) + BigInt(123) == 0);
 
