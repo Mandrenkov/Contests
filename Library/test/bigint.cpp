@@ -84,6 +84,44 @@ TEST_CASE("BigInt::operator<=>()", "[BigInt]") {
     }
 }
 
+TEST_CASE("BigInt::operator+()", "[BigInt]") {
+    SECTION("Same Sign") {
+        CHECK(BigInt() + BigInt() == 0);
+
+        CHECK(BigInt(500000000) + BigInt(500000000) == 1000000000);
+        CHECK(BigInt(-500000000) + BigInt(-500000000) == -1000000000);
+
+        CHECK(BigInt(1) + BigInt(2) == 3);
+        CHECK(BigInt(-2) + BigInt(-1) == -3);
+
+        CHECK(BigInt(999999999) + BigInt(1) == 1000000000);
+        CHECK(BigInt(-1) + BigInt(-999999999) == -1000000000);
+
+        CHECK(BigInt(1234567890) + BigInt(1234567890) == 2469135780);
+        CHECK(BigInt(-1234567890) + BigInt(-1234567890) == -2469135780);
+    }
+
+    SECTION("Different Sign") {
+        CHECK(BigInt() + BigInt() == 0);
+
+        CHECK(BigInt(123) + BigInt(-123) == 0);
+        CHECK(BigInt(-123) + BigInt(123) == 0);
+
+        CHECK(BigInt(654321) + BigInt(-123456) == 530865);
+        CHECK(BigInt(-654321) + BigInt(123456) == -530865);
+
+        CHECK(BigInt(1000000000) + BigInt(-1) == 999999999);
+        CHECK(BigInt(-1000000000) + BigInt(1) == -999999999);
+
+        CHECK(BigInt(1234567890) + BigInt(-987654321) == 246913569);
+        CHECK(BigInt(-1234567890) + BigInt(987654321) == -246913569);
+
+        CHECK(BigInt(1000000000LL * 1000000000LL) + BigInt(-1) == 1000000000LL * 1000000000LL - 1LL);
+        CHECK(BigInt(-1000000000LL * 1000000000LL) + BigInt(1) == -1000000000LL * 1000000000LL + 1LL);
+    }
+}
+
+
 TEST_CASE("BigInt::abs()", "[BigInt]") {
     CHECK(serialize(BigInt().abs()) == "0");
 

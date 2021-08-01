@@ -41,6 +41,9 @@ private:
     // Making the base a power of 10 is useful for output streaming.
     static constexpr uint64_t base = 1000 * 1000 * 1000;
 
+    static void add(std::vector<word_t>&, const std::vector<word_t>&);
+    static void sub(std::vector<word_t>&, const std::vector<word_t>&, bool);
+
     bool positive;
     std::vector<word_t> words;
 };
@@ -77,6 +80,88 @@ BigInt BigInt::operator-() const {
     }
     return num;
 }
+
+BigInt BigInt::operator+(const BigInt& rhs) const {
+    BigInt lhs = *this;
+    lhs += rhs;
+    return lhs;
+}
+
+BigInt& BigInt::operator+=(const BigInt& rhs) {
+    BigInt& lhs = *this;
+
+    if (lhs.positive == rhs.positive) {
+        add(lhs.words, rhs.words);
+        return lhs;
+    }
+    
+    if (lhs.abs() == rhs.abs()) {
+        lhs.positive = true;
+        lhs.words = {0};
+        return lhs;
+    }
+
+    if (rhs.abs() < lhs.abs()) {
+        sub(lhs.words, rhs.words, false);
+    } else {
+        lhs.positive = rhs.positive;
+        sub(lhs.words, rhs.words, true);
+    }
+    return lhs;
+}
+
+void BigInt::add(std::vector<word_t>& lhs, const std::vector<word_t>& rhs) {
+    uint64_t carry = 0;
+
+    for (size_t i = 0; i < lhs.size() || i < rhs.size() || carry > 0; ++i) {
+        const uint64_t l = i < lhs.size() ? lhs[i] : 0;
+        const uint64_t r = i < rhs.size() ? rhs[i] : 0;
+
+        const uint64_t total = l + r + carry;
+        const uint64_t sum = total % base;
+        carry = total / base;
+
+        if (i == lhs.size()) {
+            lhs.emplace_back(sum);
+        } else {
+            lhs[i] = sum;
+        }
+    }
+}
+
+void BigInt::sub(std::vector<word_t>& lhs, const std::vector<word_t>& rhs, bool swapped) {
+    // Always mutate the original LHS argument but take |lhs_| >= |rhs_| for convenience.
+    std::vector<word_t>& ans = lhs;
+    const std::vector<word_t>& lhs_ = swapped ? rhs : lhs;
+    const std::vector<word_t>& rhs_ = swapped ? lhs : rhs;
+
+    // Tracks the quantity of the next |lhs_| word that has been "borrowed".
+    uint64_t debt = 0;
+
+    for (size_t i = 0; i < lhs_.size() || i < rhs_.size(); ++i) {
+        const uint64_t l = i < lhs_.size() ? lhs_[i] : 0;
+        const uint64_t r = i < rhs_.size() ? rhs_[i] : 0;
+
+        uint64_t diff;
+        if (l >= r + debt) {
+            diff = l - r - debt;
+            debt = 0;
+        } else {
+            // Borrow from the next word (even if it must be done transitively).
+            diff = l + base - r - debt;
+            debt = 1;
+        }
+
+        // Since |lhs_| >= |rhs_| there is never a need to extend |ans|.
+        ans[i] = diff;
+    }
+
+    // Remove leading zeros.
+    while (ans.size() > 1 && ans.back() == 0) {
+        ans.pop_back();
+    }
+}
+
 
 bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
@@ -119,7 +204,6 @@ bool BigInt::operator>(const BigInt& rhs) const {
 bool BigInt::operator>=(const BigInt& rhs) const {
     return !(*this < rhs);
 }
-
 
 BigInt BigInt::abs() const {
     BigInt num = *this;
