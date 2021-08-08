@@ -4,18 +4,20 @@
 
 #include "bigint.hpp"
 
-std::string serialize(const BigInt& num) {
-    std::stringstream out;
-    out << num;
-    return out.str();
-};
+constexpr int NUM_RANDOM_TESTS = 100;
 
 TEST_CASE("BigInt::BigInt(...)", "[BigInt]") {
+    const auto serialize = [](const BigInt& num) {
+        std::stringstream out;
+        out << num;
+        return out.str();
+    };
+
     SECTION("BigInt()") {
         CHECK(serialize(BigInt()) == "0");
     }
 
-    SECTION("BigInt(uint64_t)") {
+    SECTION("BigInt(int64_t)") {
         CHECK(serialize(BigInt(1)) == "1");
         CHECK(serialize(BigInt(123)) == "123");
         CHECK(serialize(BigInt(999999999)) == "999999999");
@@ -51,13 +53,35 @@ TEST_CASE("BigInt::BigInt(...)", "[BigInt]") {
     }
 }
 
-TEST_CASE("BigInt::operator-()", "[BigInt]") {
-    CHECK(serialize(-BigInt()) == "0");
-    CHECK(serialize(-BigInt(1)) == "-1");
-    CHECK(serialize(-BigInt(-2)) == "2");
+TEST_CASE("istream::operator>>(BigInt&)", "[BigInt]") {
+    const auto deserialize = [](const std::string& input) {
+        BigInt num;
+        std::stringstream in(input);
+        in >> num;
+        return num;
+    };
+
+    CHECK(deserialize("0") == 0);
+    CHECK(deserialize("1") == 1);
+    CHECK(deserialize("-1") == -1);
+
+    CHECK(deserialize("123456") == 123456);
+    CHECK(deserialize("1234567890") == 1234567890);
+    CHECK(deserialize("-12345678987654321") == -12345678987654321LL);
+
+    REQUIRE_THROWS(deserialize(""));
+    REQUIRE_THROWS(deserialize("-"));
+    REQUIRE_THROWS(deserialize("-123.0"));
+    REQUIRE_THROWS(deserialize("-123abc456"));
 }
 
-TEST_CASE("BigInt::operator==(...)", "[BigInt]") {
+TEST_CASE("BigInt::operator-()", "[BigInt]") {
+    CHECK(-BigInt() == BigInt("0"));
+    CHECK(-BigInt(1) == BigInt("-1"));
+    CHECK(-BigInt(-2) == BigInt("2"));
+}
+
+TEST_CASE("BigInt::operator==(const BigInt&)", "[BigInt]") {
     SECTION("operator==") {
         CHECK(BigInt() == BigInt());
         CHECK(BigInt(123) == BigInt(123));
@@ -72,7 +96,7 @@ TEST_CASE("BigInt::operator==(...)", "[BigInt]") {
     }
 }
 
-TEST_CASE("BigInt::operator<=>(...)", "[BigInt]") {
+TEST_CASE("BigInt::operator<=>(const BigInt&)", "[BigInt]") {
     SECTION("operator<") {
         CHECK(BigInt(-2) < BigInt(-1));
         CHECK(BigInt(-1) < BigInt(0));
@@ -105,7 +129,7 @@ TEST_CASE("BigInt::operator<=>(...)", "[BigInt]") {
     }
 }
 
-TEST_CASE("BigInt::operator+(...)", "[BigInt]") {
+TEST_CASE("BigInt::operator+(const BigInt&)", "[BigInt]") {
     SECTION("(+) + (+) or (-) + (-)") {
         CHECK(BigInt() + BigInt() == 0);
 
@@ -149,10 +173,10 @@ TEST_CASE("BigInt::operator+(...)", "[BigInt]") {
 
     SECTION("Random") {
         auto rng = std::mt19937(std::random_device{}());
-        auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<int>::min(),
-                                                            std::numeric_limits<int>::max());
+        auto dis = std::uniform_int_distribution<int>(std::numeric_limits<int>::min(),
+                                                      std::numeric_limits<int>::max());
 
-        for (size_t i = 0; i < 1000; ++i) {
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
             long long lhs = dis(rng);
             long long rhs = dis(rng);
             CHECK(BigInt(lhs + rhs) == BigInt(lhs) + BigInt(rhs));
@@ -160,7 +184,7 @@ TEST_CASE("BigInt::operator+(...)", "[BigInt]") {
     }
 }
 
-TEST_CASE("BigInt::operator-(...)", "[BigInt]") {
+TEST_CASE("BigInt::operator-(const BigInt&)", "[BigInt]") {
     SECTION("(+) - (+)") {
         CHECK(BigInt() - BigInt() == 0);
         CHECK(BigInt(1234567890) - BigInt(1234567890) == 0);
@@ -175,16 +199,16 @@ TEST_CASE("BigInt::operator-(...)", "[BigInt]") {
         CHECK(BigInt(1) - BigInt(1000000000LL * 1000000000LL) == -1000000000LL * 1000000000LL + 1LL);
 
         CHECK(BigInt("753933910438083927237676319556802292824649773437835919048001965958225342647424502670448395286767748") -
-            BigInt("889120464295620859874489506906216159541811927511006472679060203691340689788016525584254564540511369") ==
-            BigInt("-135186553857536932636813187349413866717162154073170553631058237733115347140592022913806169253743621"));
+              BigInt("889120464295620859874489506906216159541811927511006472679060203691340689788016525584254564540511369") ==
+              BigInt("-135186553857536932636813187349413866717162154073170553631058237733115347140592022913806169253743621"));
     }
 
     SECTION("Random") {
         auto rng = std::mt19937(std::random_device{}());
-        auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<int>::min(),
-                                                            std::numeric_limits<int>::max());
+        auto dis = std::uniform_int_distribution<int>(std::numeric_limits<int>::min(),
+                                                      std::numeric_limits<int>::max());
 
-        for (size_t i = 0; i < 1000; ++i) {
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
             long long lhs = dis(rng);
             long long rhs = dis(rng);
             CHECK(BigInt(lhs - rhs) == BigInt(lhs) - BigInt(rhs));
@@ -192,7 +216,7 @@ TEST_CASE("BigInt::operator-(...)", "[BigInt]") {
     }
 }
 
-TEST_CASE("BigInt::operator*(...)", "[BigInt]") {
+TEST_CASE("BigInt::operator*(const BigInt&)", "[BigInt]") {
     SECTION("(+) * (+)") {
         CHECK(BigInt() * BigInt() == 0);
         CHECK(BigInt() * BigInt(1) == 0);
@@ -205,11 +229,11 @@ TEST_CASE("BigInt::operator*(...)", "[BigInt]") {
         CHECK(BigInt(12) * BigInt(11) == 132);
         CHECK(BigInt(123456) * BigInt(654321) == 80779853376LL);
         CHECK(BigInt(1234567890) * BigInt(987654321) == 1219326311126352690LL);
-        CHECK(BigInt(660926254) * BigInt(56991325160) == std::string("37667063048494750640"));
+        CHECK(BigInt(660926254) * BigInt(56991325160) == BigInt("37667063048494750640"));
 
         CHECK(BigInt("227665372209820782943832370508580399369381023172533882361878362635746171351356020645542347341639449") *
-            BigInt("774505744878978419380135818762313719512453981555627919693266329339858782277905352210302880203552531") ==
-            BigInt("176328138686517118613153971066150791079263727582641296951959147247738885835919148322410064339815297458079066748004125653796215057974347126019113518768116554387582588400916423826566715384951533395419"));
+              BigInt("774505744878978419380135818762313719512453981555627919693266329339858782277905352210302880203552531") ==
+              BigInt("176328138686517118613153971066150791079263727582641296951959147247738885835919148322410064339815297458079066748004125653796215057974347126019113518768116554387582588400916423826566715384951533395419"));
     }
 
     SECTION("Random") {
@@ -217,7 +241,7 @@ TEST_CASE("BigInt::operator*(...)", "[BigInt]") {
         auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<int>::min(),
                                                             std::numeric_limits<int>::max());
 
-        for (size_t i = 0; i < 1000; ++i) {
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
             long long lhs = dis(rng);
             long long rhs = dis(rng);
             CHECK(BigInt(lhs * rhs) == BigInt(lhs) * BigInt(rhs));
@@ -225,7 +249,7 @@ TEST_CASE("BigInt::operator*(...)", "[BigInt]") {
     }
 }
 
-TEST_CASE("BigInt::operator/(...)", "[BigInt]") {
+TEST_CASE("BigInt::operator/(const BigInt&)", "[BigInt]") {
     SECTION("(+) / (+)") {
         CHECK(BigInt(2) / BigInt(1) == 2);
         CHECK(BigInt(3) / BigInt(1) == 3);
@@ -247,7 +271,7 @@ TEST_CASE("BigInt::operator/(...)", "[BigInt]") {
         auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<long long>::min(),
                                                             std::numeric_limits<long long>::max());
 
-        for (size_t i = 0; i < 1000; ++i) {
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
             long long lhs = dis(rng);
             long long rhs = dis(rng);
             CHECK(BigInt(lhs / rhs) == BigInt(lhs) / BigInt(rhs));
@@ -256,11 +280,11 @@ TEST_CASE("BigInt::operator/(...)", "[BigInt]") {
 }
 
 TEST_CASE("BigInt::abs()", "[BigInt]") {
-    CHECK(serialize(BigInt().abs()) == "0");
+    CHECK(BigInt().abs() == BigInt("0"));
 
-    CHECK(serialize(BigInt(1).abs()) == "1");
-    CHECK(serialize(BigInt(1234567890).abs()) == "1234567890");
+    CHECK(BigInt(1).abs() == BigInt("1"));
+    CHECK(BigInt(1234567890).abs() == BigInt("1234567890"));
 
-    CHECK(serialize(BigInt(-1).abs()) == "1");
-    CHECK(serialize(BigInt(-1234567890).abs()) == "1234567890");
+    CHECK(BigInt(-1).abs() == BigInt("1"));
+    CHECK(BigInt(-1234567890).abs() == BigInt("1234567890"));
 }

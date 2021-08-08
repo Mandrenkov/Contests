@@ -33,6 +33,7 @@ public:
 
     BigInt abs() const;
 
+    friend std::istream& operator>>(std::istream&, BigInt&);
     friend std::ostream& operator<<(std::ostream&, const BigInt&);
 
 private:
@@ -415,4 +416,11 @@ std::ostream& operator<<(std::ostream& out, const BigInt& num) {
     out.copyfmt(init);
 
     return out;
+}
+
+std::istream& operator>>(std::istream& in, BigInt& num) {
+    std::string buffer;
+    in >> buffer;
+    num = BigInt(buffer);
+    return in;
 }
