@@ -218,13 +218,42 @@ TEST_CASE("BigInt::operator*(...)", "[BigInt]") {
                                                             std::numeric_limits<int>::max());
 
         for (size_t i = 0; i < 1000; ++i) {
-            unsigned long long lhs = dis(rng);
-            unsigned long long rhs = dis(rng);
+            long long lhs = dis(rng);
+            long long rhs = dis(rng);
             CHECK(BigInt(lhs * rhs) == BigInt(lhs) * BigInt(rhs));
         }
     }
 }
 
+TEST_CASE("BigInt::operator/(...)", "[BigInt]") {
+    SECTION("(+) / (+)") {
+        CHECK(BigInt(2) / BigInt(1) == 2);
+        CHECK(BigInt(3) / BigInt(1) == 3);
+
+        CHECK(BigInt(12) / BigInt(3) == 4);
+        CHECK(BigInt(13) / BigInt(3) == 4);
+        CHECK(BigInt(14) / BigInt(3) == 4);
+        CHECK(BigInt(15) / BigInt(3) == 5);
+
+        CHECK(BigInt(12345678987654321LL) / BigInt(567898765) == 21739224);
+
+        CHECK(BigInt("58847343977952139032542966407431703812923494687402576708815231538311544334737455357296781995384767204567613931092320091731010684255920640047749087714424580992008002606070216209999266295000523751033898") /
+              BigInt("2219439555864229884262149556907332886240547352715782147178872142509690145124314872388696800954833420") ==
+              BigInt("26514506251123162650792152172252253366139553102242710020362983347531680475643178600747376361764305970"));
+    }
+
+    SECTION("Random") {
+        auto rng = std::mt19937(std::random_device{}());
+        auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<long long>::min(),
+                                                            std::numeric_limits<long long>::max());
+
+        for (size_t i = 0; i < 1000; ++i) {
+            long long lhs = dis(rng);
+            long long rhs = dis(rng);
+            CHECK(BigInt(lhs / rhs) == BigInt(lhs) / BigInt(rhs));
+        }
+    }
+}
 
 TEST_CASE("BigInt::abs()", "[BigInt]") {
     CHECK(serialize(BigInt().abs()) == "0");

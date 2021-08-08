@@ -275,6 +275,78 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
     return lhs;
 }
 
+BigInt BigInt::operator/(const BigInt& rhs) const {
+    BigInt lhs = *this;
+    lhs /= rhs;
+    return lhs;
+}
+
+BigInt& BigInt::operator/=(const BigInt& rhs) {
+    BigInt& lhs = *this;
+
+    // Case 1: The divisor is zero.
+    // -------------------------------------------------------------------------
+    if (rhs == BigInt()) {
+        throw "Divisor cannot be zero.";
+    }
+
+    // Case 2: The LHS and RHS both fit into a single word.
+    // -------------------------------------------------------------------------
+    if (lhs.words.size() == 1 && rhs.words.size() == 1) {
+        lhs.positive = lhs.positive == rhs.positive;
+        lhs.words = {lhs.words.front() / rhs.words.front()};
+        return lhs;
+    }
+
+    // Case 3: The RHS exceeds the LHS.
+    // -------------------------------------------------------------------------
+    if (lhs.abs() < rhs.abs()) {
+        lhs.positive = true;
+        lhs.words = {0};
+        return lhs;
+    }
+
+    // Case 4: The quotient must be computed using long division.
+    // -------------------------------------------------------------------------
+    BigInt top = lhs.abs();
+    BigInt bot = rhs.abs();
+
+    const bool positive = lhs.positive == rhs.positive;
+
+    lhs.words = {0};
+
+    while (top >= bot) {
+        // Casting the word sizes to signed integers avoids underflow.
+        const int top_num_words = top.words.size();
+        const int bot_num_words = bot.words.size();
+
+        // Compute the "ambitious" base exponent of the divisor.
+        const size_t padding = std::max(0, top_num_words - bot_num_words);
+
+        BigInt quotient;
+        quotient.words.resize(padding);
+
+        // Multiply the denominator by pow(base, padding).
+        BigInt scaled_bot = bot;
+        scaled_bot.words.insert(scaled_bot.words.begin(), quotient.words.begin(), quotient.words.end());
+
+        if (top < scaled_bot) {
+            // The divisor is too large; divide it by the base.
+            const word_t scalar = top.words.back() * base / bot.words.back();
+            quotient.words.back() = scalar;
+        } else {
+            const word_t scalar = std::max<word_t>(1, top.words.back() / (bot.words.back() + 1));
+            quotient.words.emplace_back(scalar);
+        }
+
+        lhs += quotient;
+        top -= quotient * bot;
+    }
+
+    lhs.positive = positive;
+
+    return lhs;
+}
 
 bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
