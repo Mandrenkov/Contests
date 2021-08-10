@@ -216,7 +216,7 @@ BigInt BigInt::operator*(const BigInt& rhs) const {
 BigInt& BigInt::operator*=(const BigInt& rhs) {
     BigInt& lhs = *this;
 
-    lhs.positive = lhs.positive == rhs.positive;
+    lhs.positive = lhs.positive == rhs.positive || lhs == BigInt() || rhs == BigInt();
 
     // Take |large| >= |small| for convenience.
     const bool swapped = lhs.abs() < rhs.abs();
@@ -243,6 +243,11 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
             } else {
                 lhs.words[i] = sum;
             }
+        }
+
+        // Remove leading zeros.
+        while (lhs.words.size() > 1 && lhs.words.back() == 0) {
+            lhs.words.pop_back();
         }
 
         return lhs;

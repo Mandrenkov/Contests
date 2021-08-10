@@ -222,6 +222,9 @@ TEST_CASE("BigInt::operator*(const BigInt&)", "[BigInt]") {
         CHECK(BigInt() * BigInt(1) == 0);
         CHECK(BigInt(1) * BigInt() == 0);
 
+        CHECK(BigInt() * BigInt(1234567890) == 0);
+        CHECK(BigInt(1234567890) * BigInt() == 0);
+
         CHECK(BigInt(1) * BigInt(2) == 2);
         CHECK(BigInt(2) * BigInt(1) == 2);
 
