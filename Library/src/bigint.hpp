@@ -354,6 +354,17 @@ BigInt& BigInt::operator/=(const BigInt& rhs) {
     return lhs;
 }
 
+BigInt BigInt::operator%(const BigInt& rhs) const {
+    BigInt lhs = *this;
+    lhs %= rhs;
+    return lhs;
+}
+
+BigInt& BigInt::operator%=(const BigInt& rhs) {
+    BigInt& lhs = *this;
+    return *this = (*this - *this / rhs * rhs);
+}
+
 bool BigInt::operator==(const BigInt& rhs) const {
     return positive == rhs.positive && words == rhs.words;
 }

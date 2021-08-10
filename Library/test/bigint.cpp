@@ -282,6 +282,39 @@ TEST_CASE("BigInt::operator/(const BigInt&)", "[BigInt]") {
     }
 }
 
+TEST_CASE("BigInt::operator%(const BigInt&)", "[BigInt]") {
+    SECTION("(+) % (+)") {
+        CHECK(BigInt(0) % BigInt(1) == 0);
+        CHECK(BigInt(1) % BigInt(1) == 0);
+        CHECK(BigInt(2) % BigInt(1) == 0);
+        CHECK(BigInt(3) % BigInt(1) == 0);
+
+        CHECK(BigInt(12) % BigInt(3) == 0);
+        CHECK(BigInt(13) % BigInt(3) == 1);
+        CHECK(BigInt(14) % BigInt(3) == 2);
+        CHECK(BigInt(15) % BigInt(3) == 0);
+
+        CHECK(BigInt(12345678987654321LL) % BigInt(567898765) == 525995961);
+
+        CHECK(BigInt("58847343977952139032542966407431703812923494687402576708815231538311544334737455357296781995384767204567613931092320091731010684255920640047749087714424580992008002606070216209999266295000523751033898") %
+              BigInt("2219439555864229884262149556907332886240547352715782147178872142509690145124314872388696800954833420") ==
+              BigInt("1045485520912884296755561114933801153761692013833341320740745009339263452144753414004535020489516498"));
+    }
+
+    SECTION("Random") {
+        auto rng = std::mt19937(std::random_device{}());
+        auto dis = std::uniform_int_distribution<long long>(std::numeric_limits<long long>::min(),
+                                                            std::numeric_limits<long long>::max());
+
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
+            long long lhs = dis(rng);
+            long long rhs = dis(rng);
+            while (rhs == 0) rhs = dis(rng);
+            CHECK(BigInt(lhs % rhs) == BigInt(lhs) % BigInt(rhs));
+        }
+    }
+}
+
 TEST_CASE("BigInt::abs()", "[BigInt]") {
     CHECK(BigInt().abs() == BigInt("0"));
 
