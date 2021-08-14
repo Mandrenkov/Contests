@@ -1,4 +1,6 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include <catch2/catch.hpp>
 
