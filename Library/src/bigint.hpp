@@ -38,8 +38,9 @@ public:
     bool operator>=(const BigInt&) const;
 
     BigInt abs() const;
-
     BigInt pow(const BigInt&) const;
+
+    std::string str() const;
 
     friend std::istream& operator>>(std::istream&, BigInt&);
     friend std::ostream& operator<<(std::ostream&, const BigInt&);
@@ -459,6 +460,12 @@ BigInt BigInt::pow(const BigInt& exponent) const {
     }
 
     return power;
+}
+
+std::string BigInt::str() const {
+    std::stringstream out;
+    out << *this;
+    return out.str();
 }
 
 std::ostream& operator<<(std::ostream& out, const BigInt& num) {

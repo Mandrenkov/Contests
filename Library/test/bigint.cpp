@@ -7,44 +7,38 @@
 constexpr int NUM_RANDOM_TESTS = 100;
 
 TEST_CASE("BigInt::BigInt", "[BigInt]") {
-    const auto serialize = [](const BigInt& num) {
-        std::stringstream out;
-        out << num;
-        return out.str();
-    };
-
     SECTION("BigInt()") {
-        CHECK(serialize(BigInt()) == "0");
+        CHECK(BigInt().str() == "0");
     }
 
     SECTION("BigInt(int64_t)") {
-        CHECK(serialize(BigInt(1)) == "1");
-        CHECK(serialize(BigInt(123)) == "123");
-        CHECK(serialize(BigInt(999999999)) == "999999999");
-        CHECK(serialize(BigInt(1000000000)) == "1000000000");
-        CHECK(serialize(BigInt(9223372036854775807LL)) == "9223372036854775807");
+        CHECK(BigInt(1).str() == "1");
+        CHECK(BigInt(123).str() == "123");
+        CHECK(BigInt(999999999).str() == "999999999");
+        CHECK(BigInt(1000000000).str() == "1000000000");
+        CHECK(BigInt(9223372036854775807LL).str() == "9223372036854775807");
 
-        CHECK(serialize(BigInt(-0)) == "0");
-        CHECK(serialize(BigInt(-1)) == "-1");
-        CHECK(serialize(BigInt(-999999999)) == "-999999999");
-        CHECK(serialize(BigInt(-1000000000)) == "-1000000000");
-        CHECK(serialize(BigInt(-9223372036854775807LL)) == "-9223372036854775807");
+        CHECK(BigInt(-0).str() == "0");
+        CHECK(BigInt(-1).str() == "-1");
+        CHECK(BigInt(-999999999).str() == "-999999999");
+        CHECK(BigInt(-1000000000).str() == "-1000000000");
+        CHECK(BigInt(-9223372036854775807LL).str() == "-9223372036854775807");
     }
 
     SECTION("BigInt(const std::string&)") {
-        CHECK(serialize(BigInt("0")) == "0");
-        CHECK(serialize(BigInt("123")) == "123");
-        CHECK(serialize(BigInt("999999999")) == "999999999");
-        CHECK(serialize(BigInt("01000000000")) == "1000000000");
-        CHECK(serialize(BigInt("9223372036854775807")) == "9223372036854775807");
-        CHECK(serialize(BigInt("00000000000000000000000000")) == "0");
+        CHECK(BigInt("0").str() == "0");
+        CHECK(BigInt("123").str() == "123");
+        CHECK(BigInt("999999999").str() == "999999999");
+        CHECK(BigInt("01000000000").str() == "1000000000");
+        CHECK(BigInt("9223372036854775807").str() == "9223372036854775807");
+        CHECK(BigInt("00000000000000000000000000").str() == "0");
 
-        CHECK(serialize(BigInt("-0")) == "0");
-        CHECK(serialize(BigInt("-1")) == "-1");
-        CHECK(serialize(BigInt("-999999999")) == "-999999999");
-        CHECK(serialize(BigInt("-01000000000")) == "-1000000000");
-        CHECK(serialize(BigInt("-9223372036854775807")) == "-9223372036854775807");
-        CHECK(serialize(BigInt("-00000000000000000000000000")) == "0");
+        CHECK(BigInt("-0").str() == "0");
+        CHECK(BigInt("-1").str() == "-1");
+        CHECK(BigInt("-999999999").str() == "-999999999");
+        CHECK(BigInt("-01000000000").str() == "-1000000000");
+        CHECK(BigInt("-9223372036854775807").str() == "-9223372036854775807");
+        CHECK(BigInt("-00000000000000000000000000").str() == "0");
 
         REQUIRE_THROWS(BigInt(""));
         REQUIRE_THROWS(BigInt("-"));
