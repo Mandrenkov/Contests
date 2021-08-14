@@ -33,6 +33,8 @@ public:
 
     BigInt abs() const;
 
+    BigInt pow(const BigInt&) const;
+
     friend std::istream& operator>>(std::istream&, BigInt&);
     friend std::ostream& operator<<(std::ostream&, const BigInt&);
 
@@ -411,6 +413,30 @@ BigInt BigInt::abs() const {
     BigInt num = *this;
     num.positive = true;
     return num;
+}
+
+BigInt BigInt::pow(const BigInt& exponent) const {
+    if (!exponent.positive) {
+        throw "Exponent cannot be negative.";
+    } else if (exponent == BigInt()) {
+        return BigInt(1);
+    } else if (*this == BigInt()) {
+        return *this;
+    }
+
+    BigInt power(1);
+    power.positive = this->positive || (exponent.words.front() % 2 == 0);
+
+    BigInt base = this->abs();
+
+    for (BigInt exp = exponent; exp != BigInt(); exp /= 2) {
+        if (exp.words.front() % 2 == 1) {
+            power *= base;
+        }
+        base *= base;
+    }
+
+    return power;
 }
 
 std::ostream& operator<<(std::ostream& out, const BigInt& num) {

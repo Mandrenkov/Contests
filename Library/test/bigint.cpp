@@ -324,3 +324,34 @@ TEST_CASE("BigInt::abs()", "[BigInt]") {
     CHECK(BigInt(-1).abs() == BigInt("1"));
     CHECK(BigInt(-1234567890).abs() == BigInt("1234567890"));
 }
+
+TEST_CASE("BigInt::pow()", "[BigInt]") {
+    SECTION("Edge Cases") {
+        CHECK(BigInt(0).pow(1) == BigInt("0"));
+        CHECK(BigInt(0).pow(2) == BigInt("0"));
+
+        CHECK(BigInt(1).pow(0) == BigInt("1"));
+        CHECK(BigInt(1).pow(1) == BigInt("1"));
+        CHECK(BigInt(1).pow(2) == BigInt("1"));
+
+        CHECK(BigInt(2).pow(1) == BigInt("2"));
+        CHECK(BigInt(2).pow(2) == BigInt("4"));
+        CHECK(BigInt(2).pow(3) == BigInt("8"));
+
+        REQUIRE_THROWS(BigInt(1).pow(-1));
+
+        CHECK(BigInt(461).pow(92) == BigInt("114943690214714631186310146240142733983651598647852463221116086763542857967992722059056778482563560919327095063942085548142184729470249742889637845401357798402737179498215788698770823739810376126874990642187561820379388460338430744095755386279921"));
+    }
+
+    SECTION("Random") {
+        auto rng = std::mt19937(std::random_device{}());
+        auto dis_base = std::uniform_int_distribution<long long>(-10, 10);
+        auto dis_exp = std::uniform_int_distribution<long long>(0, 10);
+
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
+            long long base = dis_base(rng);
+            long long exp = dis_exp(rng);
+            CHECK(BigInt(std::pow(base, exp)) == BigInt(base).pow(exp));
+        }
+    }
+}
