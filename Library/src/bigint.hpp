@@ -343,7 +343,7 @@ BigInt& BigInt::operator/=(const BigInt& rhs) {
 
         if (top < scaled_bot) {
             // The divisor is too large; divide it by the base.
-            const word_t scalar = top.words.back() * base / bot.words.back();
+            const word_t scalar = top.words.back() * base / (bot.words.back() + 1);
             quotient.words.back() = scalar;
         } else {
             const word_t scalar = std::max<word_t>(1, top.words.back() / (bot.words.back() + 1));
