@@ -23,6 +23,9 @@ public:
     BigInt operator%(const BigInt&) const;
     BigInt& operator%=(const BigInt&);
 
+    BigInt operator<<(const BigInt&) const;
+    BigInt& operator<<=(const BigInt&);
+
     bool operator==(const BigInt&) const;
     bool operator<(const BigInt&) const;
 
@@ -365,6 +368,14 @@ BigInt BigInt::operator%(const BigInt& rhs) const {
 BigInt& BigInt::operator%=(const BigInt& rhs) {
     BigInt& lhs = *this;
     return *this = (*this - *this / rhs * rhs);
+}
+
+BigInt BigInt::operator<<(const BigInt& rhs) const {
+    return *this * BigInt(2).pow(rhs);
+}
+
+BigInt& BigInt::operator<<=(const BigInt& rhs) {
+    return *this *= BigInt(2).pow(rhs);
 }
 
 bool BigInt::operator==(const BigInt& rhs) const {
