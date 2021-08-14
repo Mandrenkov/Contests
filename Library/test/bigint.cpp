@@ -326,13 +326,13 @@ TEST_CASE("BigInt::operator<<", "[BigInt]") {
         CHECK(BigInt(1) << 0 == 1);
         CHECK(BigInt(1) << 1 == 2);
 
-        CHECK(BigInt(123456) * BigInt(654321) == 80779853376LL);
-        CHECK(BigInt(1234567890) * BigInt(987654321) == 1219326311126352690LL);
-        CHECK(BigInt(660926254) * BigInt(56991325160) == BigInt("37667063048494750640"));
+        CHECK(BigInt(2) << 10 == 2048);
+        CHECK(BigInt(123) << 4 == 1968);
+        CHECK(BigInt(5) << 55 == 180143985094819840LL);
+        CHECK(BigInt(1234567890) << 9 == 632098759680LL);
 
-        CHECK(BigInt("227665372209820782943832370508580399369381023172533882361878362635746171351356020645542347341639449") *
-              BigInt("774505744878978419380135818762313719512453981555627919693266329339858782277905352210302880203552531") ==
-              BigInt("176328138686517118613153971066150791079263727582641296951959147247738885835919148322410064339815297458079066748004125653796215057974347126019113518768116554387582588400916423826566715384951533395419"));
+        CHECK(BigInt(1234) << BigInt(321) ==
+              BigInt("5271616004652806083350913570826454618839474761176219036229298688105238283226620877456670430559469568"));
     }
 
     SECTION("Random") {
@@ -347,6 +347,36 @@ TEST_CASE("BigInt::operator<<", "[BigInt]") {
     }
 }
 
+TEST_CASE("BigInt::operator>>", "[BigInt]") {
+    SECTION("(+) >> (+)") {
+        CHECK(BigInt(0) >> 0 == 0);
+        CHECK(BigInt(0) >> 1 == 0);
+        CHECK(BigInt(1) >> 0 == 1);
+
+        CHECK(BigInt(1) >> 0 == 1);
+        CHECK(BigInt(2) >> 1 == 1);
+        CHECK(BigInt(4) >> 2 == 1);
+        CHECK(BigInt(8) >> 3 == 1);
+
+        CHECK(BigInt(12345) >> 6 == 192);
+        CHECK(BigInt(1234567890) >> 9 == 2411265);
+
+        CHECK(BigInt("9832669330483809071367926297102810309779485703236475414705978560881507106897177670904211402264602446") >> 76 ==
+              BigInt("130134295037135451221794315165446946109466472663220581233866604309085671619914"));
+    }
+
+    SECTION("Random") {
+        auto rng = std::mt19937(std::random_device{}());
+        auto dis_lhs = std::uniform_int_distribution<long long>(0, std::numeric_limits<long long>::max());
+        auto dis_rhs = std::uniform_int_distribution<long long>(0, 32);
+
+        for (size_t i = 0; i < NUM_RANDOM_TESTS; ++i) {
+            long long lhs = dis_lhs(rng);
+            long long rhs = dis_rhs(rng);
+            CHECK(BigInt(lhs >> rhs) == BigInt(lhs) >> BigInt(rhs));
+        }
+    }
+}
 
 TEST_CASE("BigInt::abs", "[BigInt]") {
     CHECK(BigInt().abs() == BigInt("0"));
