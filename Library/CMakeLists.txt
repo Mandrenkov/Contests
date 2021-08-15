@@ -25,12 +25,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(DSAL INTERFACE)
 target_include_directories(DSAL INTERFACE src)
+target_compile_options(DSAL INTERFACE $<$<COMPILE_LANGUAGE:CXX>:-O3>)
 
 # ------------------------------------------------------------------------------
 # Tests (Catch2)
 # ------------------------------------------------------------------------------
-enable_testing()
-
 Include(FetchContent)
 
 FetchContent_Declare(
@@ -44,6 +43,7 @@ FetchContent_MakeAvailable(Catch2)
 # ------------------------------------------------------------------------------
 # Tests (Runner)
 # ------------------------------------------------------------------------------
+enable_testing()
 
 add_executable(runner test/main.cpp)
 target_link_libraries(runner Catch2::Catch2)

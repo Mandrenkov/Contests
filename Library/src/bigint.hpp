@@ -268,13 +268,15 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
     // -------------------------------------------------------------------------
     const size_t shift = small.words.size() / 2;
 
-    BigInt lhs_ [2] = {lhs, lhs};
-    lhs_[0].words.erase(lhs_[0].words.begin() + shift, lhs_[0].words.end());
-    lhs_[1].words.erase(lhs_[1].words.begin(), lhs_[1].words.begin() + shift);
+    BigInt lhs_ [2];
+    lhs_[0].positive = lhs_[1].positive = lhs.positive;
+    lhs_[0].words = std::vector<word_t>(lhs.words.begin(), lhs.words.begin() + shift);
+    lhs_[1].words = std::vector<word_t>(lhs.words.begin() + shift, lhs.words.end());
 
-    BigInt rhs_ [2] = {rhs, rhs};
-    rhs_[0].words.erase(rhs_[0].words.begin() + shift, rhs_[0].words.end());
-    rhs_[1].words.erase(rhs_[1].words.begin(), rhs_[1].words.begin() + shift);
+    BigInt rhs_ [2];
+    rhs_[0].positive = rhs_[1].positive = rhs.positive;
+    rhs_[0].words = std::vector<word_t>(rhs.words.begin(), rhs.words.begin() + shift);
+    rhs_[1].words = std::vector<word_t>(rhs.words.begin() + shift, rhs.words.end());
 
     // Allocate a vector for prepending elements; padding a BigInt with n
     // zeros from the LSB side represents a multiplication by pow(base, n).
