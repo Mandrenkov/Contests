@@ -282,13 +282,13 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
     // zeros from the LSB side represents a multiplication by pow(base, n).
     const std::vector<word_t> buffer(2 * shift);
 
-    BigInt z2 = lhs_[1] * rhs_[1];
-    z2.words.insert(z2.words.begin(), buffer.begin(), buffer.end());
-
     BigInt z1 = (lhs_[1] * rhs_[0]) + (lhs_[0] * rhs_[1]);
     z1.words.insert(z1.words.begin(), buffer.begin(), buffer.begin() + shift);
 
-    BigInt z0 = lhs_[0] * rhs_[0];
+    BigInt& z2 = lhs_[1] *= rhs_[1];
+    z2.words.insert(z2.words.begin(), buffer.begin(), buffer.end());
+
+    BigInt& z0 = lhs_[0] *= rhs_[0];
 
     lhs.words = (z2 + z1 + z0).words;
     return lhs;
