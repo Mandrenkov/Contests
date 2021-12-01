@@ -1,0 +1,17 @@
+name: Advent of Code 2021 Solutions
+version: "v1.0.0"
+author: Mikhail Andrenkov
+about: Solutions for Advent of Code 2021.
+args:
+    - DAY:
+        short: d
+        long: day
+        about: Selects the day. Values must fall in the interval [1, 25].
+        required: true
+        takes_value: true
+    - PART:
+        short: p
+        long: part
+        about: Selects the part. Values must fall in the interval [1, 2].
+        required: true
+        takes_value: true
