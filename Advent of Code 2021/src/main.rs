@@ -11,15 +11,18 @@ fn main() {
 
     let day = parse_integer_option(&matches, "DAY", 1, 25);
     let part = parse_integer_option(&matches, "PART", 1, 2);
+    let sample = matches.is_present("SAMPLE");
 
     println!(
-        "{} / {}",
+        "{} / {} {}",
         format!("Day {:02}", day).green(),
-        format!("Part {}", part).red()
+        format!("Part {}", part).red(),
+        if sample { "(Sample)" } else { "" },
     );
     println!("{}", "-".repeat(80));
 
-    let filename = format!("input/d{:02}p{}.txt", day, part);
+    let suffix = if sample { "sample" } else { "unique" };
+    let filename = format!("input/day_{:02}_{}.txt", day, suffix);
     let input = fs::read_to_string(filename).expect("Failed to read input file");
 
     match day {

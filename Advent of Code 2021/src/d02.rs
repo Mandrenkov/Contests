@@ -41,7 +41,7 @@ pub fn p2(input: String) {
             _ => {
                 x += val;
                 y += aim * val;
-            },
+            }
         }
     }
 

@@ -6,12 +6,17 @@ args:
     - DAY:
         short: d
         long: day
-        about: Selects the day. Values must fall in the interval [1, 25].
+        about: Select the day. Value must fall in the interval [1, 25].
         required: true
         takes_value: true
     - PART:
         short: p
         long: part
-        about: Selects the part. Values must fall in the interval [1, 2].
+        about: Select the part. Valus must fall in the interval [1, 2].
         required: true
         takes_value: true
+    - SAMPLE:
+        short: s
+        long: sample
+        about: Use the sample input.
+        takes_value: false
