@@ -9,10 +9,12 @@ fn main() {
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from(yaml).get_matches();
 
+    // Get and validate the command-line arguments.
     let day = parse_integer_option(&matches, "DAY", 1, 25);
     let part = parse_integer_option(&matches, "PART", 1, 2);
     let sample = matches.is_present("SAMPLE");
 
+    // Display a fancy header.
     println!(
         "{} / {} {}",
         format!("Day {:02}", day).green(),
@@ -21,26 +23,30 @@ fn main() {
     );
     println!("{}", "-".repeat(80));
 
+    // Read the input file into a string.
     let suffix = if sample { "sample" } else { "unique" };
     let filename = format!("input/day_{:02}_{}.txt", day, suffix);
     let input = fs::read_to_string(filename).expect("Failed to read input file");
 
-    match day {
+    // Find the solver function.
+    let solver: fn(String) = match day {
         1 => match part {
-            1 => day_01::part_1(input),
-            _ => day_01::part_2(input),
+            1 => day_01::part_1,
+            _ => day_01::part_2,
         },
         2 => match part {
-            1 => day_02::part_1(input),
-            _ => day_02::part_2(input),
+            1 => day_02::part_1,
+            _ => day_02::part_2,
         },
         _ => {
-            eprintln!("No solution is available yet for day {}.", day)
+            eprintln!("No solver is available yet for day {}.", day)
         }
-    }
+    };
+
+    solver(input);
 }
 
-/// Parses the given CLI option into an integer.
+/// Parses the given command-line option into an integer.
 fn parse_integer_option(matches: &clap::ArgMatches, option: &str, min: i32, max: i32) -> i32 {
     if let Some(string) = matches.value_of(option) {
         let value = string.parse().unwrap();
