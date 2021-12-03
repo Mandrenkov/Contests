@@ -3,6 +3,7 @@ use colored::*;
 use std::fs;
 
 mod d01;
+mod d02;
 
 fn main() {
     let yaml = load_yaml!("cli.yaml");
@@ -25,6 +26,10 @@ fn main() {
         1 => match part {
             1 => d01::p1(input),
             _ => d01::p2(input),
+        },
+        2 => match part {
+            1 => d02::p1(input),
+            _ => d02::p2(input),
         },
         _ => {
             eprintln!("No solution is available yet for day {}.", day)
