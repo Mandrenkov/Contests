@@ -1,5 +1,5 @@
 /// Solves the Day 01 Part 1 puzzle with respect to the given input.
-pub fn p1(input: String) {
+pub fn part_1(input: String) {
     let depths = parse_input(input);
 
     let mut increases = 0;
@@ -12,7 +12,7 @@ pub fn p1(input: String) {
 }
 
 /// Solves the Day 01 Part 2 puzzle with respect to the given input.
-pub fn p2(input: String) {
+pub fn part_2(input: String) {
     let depths = parse_input(input);
 
     let mut prefixes: Vec<i32> = vec![0; depths.len() + 1];

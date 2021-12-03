@@ -1,5 +1,5 @@
 /// Solves the Day 02 Part 1 puzzle with respect to the given input.
-pub fn p1(input: String) {
+pub fn part_1(input: String) {
     let tokens = input.split_whitespace();
 
     let str_to_int = |token: &str| token.parse::<i64>().unwrap();
@@ -22,7 +22,7 @@ pub fn p1(input: String) {
 }
 
 /// Solves the Day 02 Part 2 puzzle with respect to the given input.
-pub fn p2(input: String) {
+pub fn part_2(input: String) {
     let tokens = input.split_whitespace();
 
     let str_to_int = |token: &str| token.parse::<i64>().unwrap();
