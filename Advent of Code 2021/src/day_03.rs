@@ -34,7 +34,7 @@ pub fn part_1(input: String) {
 pub fn part_2(input: String) {
     let report: Vec<&str> = input.split_whitespace().collect();
 
-    let rating = | criterion: fn(usize, usize) -> bool | {
+    let rating = |criterion: fn(usize, usize) -> bool| {
         let mut candidates: Vec<&str> = report.clone();
 
         let mut digit = 0;
