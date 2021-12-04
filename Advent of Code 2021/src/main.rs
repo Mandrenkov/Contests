@@ -5,6 +5,7 @@ use std::fs;
 mod day_01;
 mod day_02;
 mod day_03;
+mod day_04;
 
 fn main() {
     let yaml = load_yaml!("cli.yaml");
@@ -42,6 +43,10 @@ fn main() {
         3 => match part {
             1 => day_03::part_1,
             _ => day_03::part_2,
+        },
+        4 => match part {
+            1 => day_04::part_1,
+            _ => day_04::part_2,
         },
         _ => {
             panic!("No solver is available yet for day {}.", day)
