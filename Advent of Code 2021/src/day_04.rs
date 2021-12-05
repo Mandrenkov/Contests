@@ -100,7 +100,8 @@ fn play(draws: Vec<i32>, boards: Vec<[[i32; 5]; 5]>, winner: i32) -> (i32, [[i32
             }
         }
     }
-    panic!("Ugh")
+
+    panic!("Not enough boards won at Bingo.")
 }
 
 /// Returns true iff there is a row of column filled with -1 in the given board.
