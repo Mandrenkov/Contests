@@ -63,7 +63,6 @@ fn dfs(
             visited.insert(next_str_1);
             paths += dfs(graph, next, visited, twice);
             visited.remove(&next_str_2);
-
         } else if !twice && next != &"start" {
             paths += dfs(graph, next, visited, true);
         }
