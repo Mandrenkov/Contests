@@ -10,9 +10,10 @@ pub fn part_2(input: String) {
     println!("{}", solve(input, 40));
 }
 
+/// Solves the Day 14 puzzle with respect to the given input and step count.
 fn solve(input: String, steps: usize) -> usize {
     let mut lines = input.lines();
-    let template : String = lines.next().unwrap().chars().collect();
+    let template: String = lines.next().unwrap().chars().collect();
 
     lines.next();
 
@@ -43,7 +44,11 @@ fn solve(input: String, steps: usize) -> usize {
     return max - min;
 }
 
-fn step(rules: &HashMap<(char, char), char>, old_pairs: &HashMap<(char, char), usize>) -> HashMap<(char, char), usize> {
+/// Simulates a step of the pair insertion process.
+fn step(
+    rules: &HashMap<(char, char), char>,
+    old_pairs: &HashMap<(char, char), usize>,
+) -> HashMap<(char, char), usize> {
     let mut new_pairs = HashMap::<(char, char), usize>::new();
     for (pair, count) in old_pairs {
         if rules.contains_key(pair) {
@@ -58,6 +63,7 @@ fn step(rules: &HashMap<(char, char), char>, old_pairs: &HashMap<(char, char), u
     return new_pairs;
 }
 
+/// Returns the difference between the smallest and largest letter frequencies.
 fn count(template: &String, pairs: &HashMap<(char, char), usize>) -> HashMap<char, usize> {
     let mut counts = HashMap::<char, usize>::new();
     for ((x, _), count) in pairs {
