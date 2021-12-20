@@ -1,6 +1,6 @@
 use core::cmp::max;
-use rand::thread_rng;
 use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::collections::HashSet;
 
 /// Solves the Day 19 Part 1 puzzle with respect to the given input.
@@ -117,7 +117,11 @@ fn overlap(v1: &Vec<Vec<isize>>, v2: &Vec<Vec<isize>>) -> Option<(usize, (isize,
 
         for i in 0..v1.len() {
             for j in 0..v3.len() {
-                let offset = (v1[i][0] - v3[j][0], v1[i][1] - v3[j][1], v1[i][2] - v3[j][2]);
+                let offset = (
+                    v1[i][0] - v3[j][0],
+                    v1[i][1] - v3[j][1],
+                    v1[i][2] - v3[j][2],
+                );
 
                 let mut s2 = HashSet::<(isize, isize, isize)>::new();
                 for beacon in &v3 {
@@ -143,181 +147,133 @@ fn rotate(x: isize, y: isize, z: isize, orient: usize) -> (isize, isize, isize) 
         // X = (1, 0, 0)
         0 => (
             x,
-            // Y = (0, 1, 0)
-            y,
-            // Z = (0, 0, 1)
-            z
+            y, // Y = (0, 1, 0)
+            z, // Z = (0, 0, 1)
         ),
         1 => (
             x,
-            // Y = (0, 0, 1)
-            -z,
-            // Z = (0, -1, 0)
-            y
+            -z, // Y = (0, 0, 1)
+            y, // Z = (0, -1, 0)
         ),
         2 => (
             x,
-            // Y = (0, -1, 0)
-            -y,
-            // Z = (0, 0, -1)
-            -z
+            -y, // Y = (0, -1, 0)
+            -z, // Z = (0, 0, -1)
         ),
         3 => (
             x,
-            // Y = (0, 0, -1)
-            z,
-            // Z = (0, 1, 0)
-            -y
+            z, // Y = (0, 0, -1)
+            -y, // Z = (0, 1, 0)
         ),
 
         // X = (-1, 0, 0)
         4 => (
             -x,
-            // Y = (0, -1, 0)
-            -y,
-            // Z = (0, 0, 1)
-            z
+            -y, // Y = (0, -1, 0)
+            z, // Z = (0, 0, 1)
         ),
         5 => (
             -x,
-            // Y = (0, 0, 1)
-            z,
-            // Z = (0, 1, 0)
-            y
+            z, // Y = (0, 0, 1)
+            y, // Z = (0, 1, 0)
         ),
         6 => (
             -x,
-            // Y = (0, 1, 0)
-            y,
-            // Z = (0, 0, -1)
-            -z
+            y, // Y = (0, 1, 0)
+            -z, // Z = (0, 0, -1)
         ),
         7 => (
             -x,
-            // Y = (0, 0, -1)
-            -z,
-            // Z = (0, -1, 0)
-            -y
+            -z, // Y = (0, 0, -1)
+            -y, // Z = (0, -1, 0)
         ),
 
         // X = (0, 1, 0)
         8 => (
             z,
-            // Y = (0, 0, 1)
-            x,
-            // Z = (1, 0, 0)
-            y
+            x, // Y = (0, 0, 1)
+            y, // Z = (1, 0, 0)
         ),
         9 => (
             y,
-            // Y = (1, 0, 0)
-            x,
-            // Z = (0, 0, -1)
-            -z
+            x, // Y = (1, 0, 0)
+            -z, // Z = (0, 0, -1)
         ),
         10 => (
             -z,
-            // Y = (0, 0, -1)
-            x,
-            // Z = (-1, 0, 0)
-            -y
+            x, // Y = (0, 0, -1)
+            -y, // Z = (-1, 0, 0)
         ),
         11 => (
             -y,
-            // Y = (-1, 0, 0)
-            x,
-            // Z = (0, 0, 1)
-            z
+            x, // Y = (-1, 0, 0)
+            z, // Z = (0, 0, 1)
         ),
 
         // X = (0, -1, 0)
         12 => (
             y,
-            // Y = (1, 0, 0)
-            -x,
-            // Z = (0, 0, 1)
-            z
+            -x, // Y = (1, 0, 0)
+            z, // Z = (0, 0, 1)
         ),
         13 => (
             -z,
-            // Y = (0, 0, 1)
-            -x,
-            // Z = (-1, 0, 0)
-            y
+            -x, // Y = (0, 0, 1)
+            y, // Z = (-1, 0, 0)
         ),
         14 => (
             -y,
-            // Y = (-1, 0, 0)
-            -x,
-            // Z = (0, 0, -1)
-            -z
+            -x, // Y = (-1, 0, 0)
+            -z, // Z = (0, 0, -1)
         ),
         15 => (
             z,
-            // Y = (0, 0, -1)
-            -x,
-            // Z = (1, 0, 0)
-            -y
+            -x, // Y = (0, 0, -1)
+            -y, // Z = (1, 0, 0)
         ),
 
         // X = (0, 0, 1)
         16 => (
             y,
-            // Y = (1, 0, 0)
-            z,
-            // Z = (0, 1, 0)
-            x
+            z, // Y = (1, 0, 0)
+            x, // Z = (0, 1, 0)
         ),
         17 => (
             -z,
-            // Y = (0, 1, 0)
-            y,
-            // Z = (-1, 0, 0)
-            x
+            y, // Y = (0, 1, 0)
+            x, // Z = (-1, 0, 0)
         ),
         18 => (
             -y,
-            // Y = (-1, 0, 0)
-            -z,
-            // Z = (0, -1, 0)
-            x
+            -z, // Y = (-1, 0, 0)
+            x, // Z = (0, -1, 0)
         ),
         19 => (
             z,
-            // Y = (0, -1, 0)
-            -y,
-            // Z = (1, 0, 0)
-            x
+            -y, // Y = (0, -1, 0)
+            x, // Z = (1, 0, 0)
         ),
 
         // X = (0, 0, -1)
         20 => (
             z,
-            // Y = (0, 1, 0)
-            y,
-            // Z = (1, 0, 0)
-            -x
+            y, // Y = (0, 1, 0)
+            -x, // Z = (1, 0, 0)
         ),
         21 => (
             y,
-            // Y = (1, 0, 0)
-            -z,
-            // Z = (0, -1, 0)
-            -x
+            -z, // Y = (1, 0, 0)
+            -x, // Z = (0, -1, 0)
         ),
         22 => (
             -z,
-            // Y = (0, -1, 0)
-            -y,
-            // Z = (-1, 0, 0)
-            -x
+            -y, // Y = (0, -1, 0)
+            -x, // Z = (-1, 0, 0)
         ),
         23 => (
             -y,
-            // Y = (-1, 0, 0)
-            z,
-            // Z = (0, 1, 0)
-            -x
+            z, // Y = (-1, 0, 0)
+            -x, // Z = (0, 1, 0)
         ),
 
         _ => {
@@ -326,7 +282,12 @@ fn rotate(x: isize, y: isize, z: isize, orient: usize) -> (isize, isize, isize) 
     };
 }
 
-fn merge(v1: &Vec<Vec<isize>>, v2: &Vec<Vec<isize>>, transform: (usize, (isize, isize, isize))) -> Vec<Vec<isize>> {
+/// Merges the beacon readings of two scanners.
+fn merge(
+    v1: &Vec<Vec<isize>>,
+    v2: &Vec<Vec<isize>>,
+    transform: (usize, (isize, isize, isize)),
+) -> Vec<Vec<isize>> {
     let (orient, translate) = transform;
 
     let mut s1 = HashSet::<(isize, isize, isize)>::new();
