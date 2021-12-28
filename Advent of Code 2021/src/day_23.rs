@@ -10,30 +10,94 @@ pub fn part_1(input: String) {
     let top = lines.next().unwrap();
     let bot = lines.next().unwrap();
 
-    let start = State{
+    let start = State {
         cost: 0,
         pods: [
             // Room A
-            Pod { pos: 11, clr : top.chars().nth(3).unwrap(), fin : false },
-            Pod { pos: 12, clr : bot.chars().nth(3).unwrap(), fin : false },
-            Pod { pos: 13, clr : 'A', fin : true },
-            Pod { pos: 14, clr : 'A', fin : true },
+            Pod {
+                pos: 11,
+                clr: top.chars().nth(3).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 12,
+                clr: bot.chars().nth(3).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 13,
+                clr: 'A',
+                fin: true,
+            },
+            Pod {
+                pos: 14,
+                clr: 'A',
+                fin: true,
+            },
             // Room B
-            Pod { pos: 15, clr : top.chars().nth(5).unwrap(), fin : false },
-            Pod { pos: 16, clr : bot.chars().nth(5).unwrap(), fin : false },
-            Pod { pos: 17, clr : 'B', fin : true },
-            Pod { pos: 18, clr : 'B', fin : true },
+            Pod {
+                pos: 15,
+                clr: top.chars().nth(5).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 16,
+                clr: bot.chars().nth(5).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 17,
+                clr: 'B',
+                fin: true,
+            },
+            Pod {
+                pos: 18,
+                clr: 'B',
+                fin: true,
+            },
             // Room C
-            Pod { pos: 19, clr : top.chars().nth(7).unwrap(), fin : false },
-            Pod { pos: 20, clr : bot.chars().nth(7).unwrap(), fin : false },
-            Pod { pos: 21, clr : 'C', fin : true },
-            Pod { pos: 22, clr : 'C', fin : true },
+            Pod {
+                pos: 19,
+                clr: top.chars().nth(7).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 20,
+                clr: bot.chars().nth(7).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 21,
+                clr: 'C',
+                fin: true,
+            },
+            Pod {
+                pos: 22,
+                clr: 'C',
+                fin: true,
+            },
             // Room D
-            Pod { pos: 23, clr : top.chars().nth(9).unwrap(), fin : false },
-            Pod { pos: 24, clr : bot.chars().nth(9).unwrap(), fin : false },
-            Pod { pos: 25, clr : 'D', fin : true },
-            Pod { pos: 26, clr : 'D', fin : true },
-        ]
+            Pod {
+                pos: 23,
+                clr: top.chars().nth(9).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 24,
+                clr: bot.chars().nth(9).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 25,
+                clr: 'D',
+                fin: true,
+            },
+            Pod {
+                pos: 26,
+                clr: 'D',
+                fin: true,
+            },
+        ],
     };
 
     let cost = solve(start).unwrap();
@@ -46,30 +110,94 @@ pub fn part_2(input: String) {
     let top = lines.next().unwrap();
     let bot = lines.next().unwrap();
 
-    let start = State{
+    let start = State {
         cost: 0,
         pods: [
             // Room A
-            Pod { pos: 11, clr : top.chars().nth(3).unwrap(), fin : false },
-            Pod { pos: 12, clr : 'D', fin : false },
-            Pod { pos: 13, clr : 'D', fin : false },
-            Pod { pos: 14, clr : bot.chars().nth(3).unwrap(), fin : false },
+            Pod {
+                pos: 11,
+                clr: top.chars().nth(3).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 12,
+                clr: 'D',
+                fin: false,
+            },
+            Pod {
+                pos: 13,
+                clr: 'D',
+                fin: false,
+            },
+            Pod {
+                pos: 14,
+                clr: bot.chars().nth(3).unwrap(),
+                fin: false,
+            },
             // Room B
-            Pod { pos: 15, clr : top.chars().nth(5).unwrap(), fin : false },
-            Pod { pos: 16, clr : 'C', fin : false },
-            Pod { pos: 17, clr : 'B', fin : false },
-            Pod { pos: 18, clr : bot.chars().nth(5).unwrap(), fin : false },
+            Pod {
+                pos: 15,
+                clr: top.chars().nth(5).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 16,
+                clr: 'C',
+                fin: false,
+            },
+            Pod {
+                pos: 17,
+                clr: 'B',
+                fin: false,
+            },
+            Pod {
+                pos: 18,
+                clr: bot.chars().nth(5).unwrap(),
+                fin: false,
+            },
             // Room C
-            Pod { pos: 19, clr : top.chars().nth(7).unwrap(), fin : false },
-            Pod { pos: 20, clr : 'B', fin : false },
-            Pod { pos: 21, clr : 'A', fin : false },
-            Pod { pos: 22, clr : bot.chars().nth(7).unwrap(), fin : false },
+            Pod {
+                pos: 19,
+                clr: top.chars().nth(7).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 20,
+                clr: 'B',
+                fin: false,
+            },
+            Pod {
+                pos: 21,
+                clr: 'A',
+                fin: false,
+            },
+            Pod {
+                pos: 22,
+                clr: bot.chars().nth(7).unwrap(),
+                fin: false,
+            },
             // Room D
-            Pod { pos: 23, clr : top.chars().nth(9).unwrap(), fin : false },
-            Pod { pos: 24, clr : 'A', fin : false },
-            Pod { pos: 25, clr : 'C', fin : false },
-            Pod { pos: 26, clr : bot.chars().nth(9).unwrap(), fin : false },
-        ]
+            Pod {
+                pos: 23,
+                clr: top.chars().nth(9).unwrap(),
+                fin: false,
+            },
+            Pod {
+                pos: 24,
+                clr: 'A',
+                fin: false,
+            },
+            Pod {
+                pos: 25,
+                clr: 'C',
+                fin: false,
+            },
+            Pod {
+                pos: 26,
+                clr: bot.chars().nth(9).unwrap(),
+                fin: false,
+            },
+        ],
     };
 
     let cost = solve(start).unwrap();
@@ -114,12 +242,14 @@ fn solve(start: State) -> Option<usize> {
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 struct State {
     cost: usize,
-    pods: [Pod; 16]
+    pods: [Pod; 16],
 }
 
 impl Ord for State {
     fn cmp(&self, other: &Self) -> Ordering {
-        other.cost.cmp(&self.cost)
+        other
+            .cost
+            .cmp(&self.cost)
             .then_with(|| self.pods.cmp(&other.pods))
     }
 }
@@ -150,14 +280,12 @@ impl State {
     fn draw(&self) {
         let chars = self.to_chars();
 
-        let get = |pos: usize| {
-            match chars[pos] {
-                'A' => "A".red(),
-                'B' => "B".green(),
-                'C' => "C".blue(),
-                'D' => "D".yellow(),
-                _ => ".".white()
-            }
+        let get = |pos: usize| match chars[pos] {
+            'A' => "A".red(),
+            'B' => "B".green(),
+            'C' => "C".blue(),
+            'D' => "D".yellow(),
+            _ => ".".white(),
         };
 
         println!("Cost = {}.\n", self.cost);
@@ -179,7 +307,6 @@ impl State {
         let line = (0..40).map(|_| '-').collect::<String>();
         println!("{}", line);
     }
-
 }
 
 /// Represents an amphipod (or "pod") instance in the diagram.
@@ -202,7 +329,6 @@ impl Pod {
         }
     }
 }
-
 
 /// Reports whether all the pods in the given state are in their respective rooms.
 fn is_goal_state(state: &State) -> bool {
@@ -238,8 +364,8 @@ fn get_next_state_from_hallway(state: &State, index: usize) -> Option<State> {
     let chars = state.to_chars();
     let pod = state.pods[index];
 
-    let is_dot = |x: &char| {*x == '.'};
-    let is_allowed = |x: &&char| {**x == '.' || **x == pod.clr };
+    let is_dot = |x: &char| *x == '.';
+    let is_allowed = |x: &&char| **x == '.' || **x == pod.clr;
 
     let room = "ABCD".find(pod.clr).unwrap();
     let door = 2 + 2 * room;
@@ -284,7 +410,7 @@ fn get_next_state_from_room(state: &State, index: usize) -> Vec<State> {
     let chars = state.to_chars();
     let pod = state.pods[index];
 
-    let is_dot = |x: &char| {*x == '.'};
+    let is_dot = |x: &char| *x == '.';
 
     let room = (pod.pos - 11) / 4;
     let door = 2 + 2 * room;
