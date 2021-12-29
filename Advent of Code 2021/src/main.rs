@@ -24,6 +24,9 @@ mod day_19;
 mod day_20;
 mod day_21;
 mod day_22;
+mod day_23;
+mod day_24;
+mod day_25;
 
 fn main() {
     let yaml = load_yaml!("cli.yaml");
@@ -137,6 +140,18 @@ fn main() {
         22 => match part {
             1 => day_22::part_1,
             _ => day_22::part_2,
+        },
+        23 => match part {
+            1 => day_23::part_1,
+            _ => day_23::part_2,
+        },
+        24 => match part {
+            1 => day_24::part_1,
+            _ => day_24::part_2,
+        },
+        25 => match part {
+            1 => day_25::part_1,
+            _ => day_25::part_2,
         },
         _ => {
             panic!("No solver is available yet for day {}.", day)
