@@ -154,7 +154,7 @@ fn main() {
             _ => day_25::part_2,
         },
         _ => {
-            panic!("No solver is available yet for day {}.", day)
+            panic!("No solver is available for day {}.", day)
         }
     };
 
