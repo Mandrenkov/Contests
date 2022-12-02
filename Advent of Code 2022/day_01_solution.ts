@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-const path = "day_01_unique.txt";
+const path: string = process.argv.slice(2, 3)[0];
 const input = readFileSync(path, "utf8");
 const lines = input.split("\n\n")
 
